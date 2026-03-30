@@ -312,7 +312,7 @@ const msalCfg = {
   },
   cache:{ cacheLocation:'localStorage', storeAuthStateInCookie:true }
 };
-const msal = new window.msal.PublicClientApplication(msalCfg);
+const msalInstance = new window.msal.PublicClientApplication(msalCfg);
 
 let token      = null;
 let fileId     = null;
@@ -327,8 +327,8 @@ let tipo       = 'Egreso';
 // ════════════════════════════════════════
 async function signIn() {
   try {
-    const r = await msal.loginPopup({ scopes: SCOPES });
-    msal.setActiveAccount(r.account);
+    const r = await msalInstance.loginPopup({ scopes: SCOPES });
+    msalInstance.setActiveAccount(r.account);
     await boot(r.account);
   } catch(e){ toast('Error al iniciar sesión: '+e.message,'er'); }
 }
@@ -348,17 +348,17 @@ async function boot(acct) {
 }
 
 async function getToken() {
-  const req = { scopes: SCOPES, account: msal.getActiveAccount() };
-  try { return (await msal.acquireTokenSilent(req)).accessToken; }
-  catch { return (await msal.acquireTokenPopup(req)).accessToken; }
+  const req = { scopes: SCOPES, account: msalInstance.getActiveAccount() };
+  try { return (await msalInstance.acquireTokenSilent(req)).accessToken; }
+  catch { return (await msalInstance.acquireTokenPopup(req)).accessToken; }
 }
 
-function signOut(){ msal.logoutPopup(); location.reload(); }
+function signOut(){ msalInstance.logoutPopup(); location.reload(); }
 
 window.onload = async () => {
-  await msal.handleRedirectPromise().catch(()=>{});
-  const accts = msal.getAllAccounts();
-  if (accts.length) { msal.setActiveAccount(accts[0]); await boot(accts[0]); }
+  await msalInstance.handleRedirectPromise().catch(()=>{});
+  const accts = msalInstance.getAllAccounts();
+  if (accts.length) { msalInstance.setActiveAccount(accts[0]); await boot(accts[0]); }
 };
 
 // ════════════════════════════════════════
