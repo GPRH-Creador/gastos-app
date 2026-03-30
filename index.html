@@ -304,15 +304,19 @@ const SHEET_DATA   = 'Finanzas (2026)';
 const SCOPES       = ['User.Read', 'Files.ReadWrite'];
 const LOCAL_KEY    = 'gf_records_v3';
 
-const msalCfg = {
-  auth:{
-    clientId: CLIENT_ID,
-    authority: 'https://login.microsoftonline.com/common',
-    redirectUri: location.href.split('?')[0].split('#')[0]
-  },
-  cache:{ cacheLocation:'localStorage', storeAuthStateInCookie:true }
-};
-const msalInstance = new window.msal.PublicClientApplication(msalCfg);
+let msalInstance = null;
+
+function initMsal() {
+  const msalCfg = {
+    auth:{
+      clientId: CLIENT_ID,
+      authority: 'https://login.microsoftonline.com/common',
+      redirectUri: location.href.split('?')[0].split('#')[0]
+    },
+    cache:{ cacheLocation:'localStorage', storeAuthStateInCookie:true }
+  };
+  msalInstance = new window.msal.PublicClientApplication(msalCfg);
+}
 
 let token      = null;
 let fileId     = null;
@@ -356,6 +360,7 @@ async function getToken() {
 function signOut(){ msalInstance.logoutPopup(); location.reload(); }
 
 window.onload = async () => {
+  initMsal();
   await msalInstance.handleRedirectPromise().catch(()=>{});
   const accts = msalInstance.getAllAccounts();
   if (accts.length) { msalInstance.setActiveAccount(accts[0]); await boot(accts[0]); }
