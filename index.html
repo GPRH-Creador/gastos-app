@@ -6,7 +6,17 @@
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <title>💰 Gastos Familiares</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
-<script src="https://alcdn.msauth.net/browser/2.38.3/js/msal-browser.min.js"></script>
+<script>
+  function loadMSAL() {
+    return new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/@azure/msal-browser@2.38.3/lib/msal-browser.min.js';
+      s.onload = resolve;
+      s.onerror = reject;
+      document.head.appendChild(s);
+    });
+  }
+</script>
 <style>
 :root{
   --bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e334d;
@@ -300,7 +310,7 @@ const CLIENT_ID    = '295e1bdd-225b-49d3-a0d2-aa08bdf211e3';
 const FILE_NAME    = 'Control_de_Gastos_2026.xlsx';
 const FOLDER_PATH  = '/Gestion Financiera';
 const SHEET_LISTAS = 'Listas';
-const SHEET_DATA   = 'Finanzas (2026)';
+const SHEET_DATA   = 'Registros';
 const SCOPES       = ['User.Read', 'Files.ReadWrite'];
 const LOCAL_KEY    = 'gf_records_v3';
 
@@ -360,6 +370,7 @@ async function getToken() {
 function signOut(){ msalInstance.logoutPopup(); location.reload(); }
 
 window.onload = async () => {
+  await loadMSAL();
   initMsal();
   await msalInstance.handleRedirectPromise().catch(()=>{});
   const accts = msalInstance.getAllAccounts();
@@ -543,9 +554,22 @@ async function guardar(){
     timestamp:new Date().toISOString(), sync:false
   };
 
-  // Columnas: Mes|Año|ID|Fecha Reg|Fecha Pago|Dia|Semana|Detalle|Transaccion|Gasto*|Familia|Tipo|Valor|Medio Pago|Cuenta
-  const row=[rec.mes,rec.año,'',f,f,rec.dia,rec.semana,rec.detalle,rec.transaccion||'',rec.gasto,rec.familia,rec.tipo,rec.valor,rec.medioPago,rec.cuenta];
-
+  // Columnas: 
+	Mes|Año|ID|Fecha Reg|Fecha Pago|Dia|Semana|Detalle|Transaccion|Gasto*|Familia|Tipo|Valor|Medio Pago|Cuenta
+  const row=
+[	rec.mes,
+	rec.año,
+	rec.dia,	
+	f,
+	rec.semana,
+	rec.detalle,
+	rec.transaccion||'',
+	rec.gasto,
+	rec.familia,
+	rec.tipo,
+	rec.valor,
+	rec.medioPago,
+	rec.cuenta];
   try {
     sync('ld','Guardando…');
     await xlAppend(SHEET_DATA, row);
