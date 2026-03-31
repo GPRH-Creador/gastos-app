@@ -520,71 +520,84 @@ function autoFam(){
 // ════════════════════════════════════════
 // FUNCION GUARDAR
 // ════════════════════════════════════════
-async function guardar(){
-  const v=parseFloat(document.getElementById('f-v').value);
-  const f=document.getElementById('f-f').value;
-  const d=document.getElementById('f-d').value.trim();
-  const g=document.getElementById('f-g').value;
-  const m=document.getElementById('f-m').value;
-  const c=document.getElementById('f-c').value;
-  const t=document.getElementById('f-t').value.trim();
+async function guardar() {
+  // 1. Captura de datos usando los IDs reales de tu HTML
+  const v = parseFloat(document.getElementById('fVal').value);
+  const f = document.getElementById('fDate').value;
+  const d = document.getElementById('fDesc').value.trim();
+  const g = document.getElementById('fGasto').value;
+  const m = document.getElementById('fMedio').value;
+  const c = document.getElementById('fCta').value;
+  const t = document.getElementById('fTrans').value.trim();
 
-  if(!v||v<=0) return err('f-v');
-  if(!f)       return err('f-f');
-  if(!d)       return err('f-d');
-  if(!g)       return err('f-g');
-  if(!m)       return err('f-m');
-  if(!c)       return err('f-c');
+  // Validaciones básicas
+  if (!v || !f || !d || !g) {
+    toast('Faltan datos obligatorios', 'er');
+    return;
+  }
 
-  const btn=document.getElementById('bsave');
-  btn.disabled=true; btn.innerHTML='<div class="spinner"></div>';
+  const btn = document.getElementById('btnSave');
+  btn.disabled = true;
+  btn.innerHTML = '<span>Guardando...</span>';
 
-  const fam=gastosMap[g]||'Otros';
-  const dt=new Date(f+'T12:00:00');
-  const MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-  const DIAS=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  // 2. Cálculos de tiempo para las columnas A, B, D y E
+  const dt = new Date(f + 'T12:00:00');
+  const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const DIAS = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  
+  const fam = gastosMap[g] || 'Otros';
+  const tipoGasto = (fam === 'Ingreso') ? 'Ingreso' : 'Egreso';
 
-  const rec={
-    id:Date.now(), mes:MESES[dt.getMonth()], año:dt.getFullYear(),
-    fechaPago:f, dia:DIAS[dt.getDay()], semana:getWk(dt),
-    detalle:d, transaccion:t, gasto:g, familia:fam, tipo, valor:v,
-    medioPago:m, cuenta:c,
-    usuario:(currentUser?.name||'').split(' ')[0]||'App',
-    sync:false
-  };
-
-  // ESTA ES LA ESTRUCTURA EXACTA PARA EXCEL 2026 (14 COLUMNAS)
+  // 3. LA FILA DE 14 COLUMNAS (Mapeo exacto para Excel 2026)
   const row = [
-    rec.mes,            // A: Mes
-    rec.año,            // B: Año
-    f,                  // C: Fecha Pago
-    rec.dia,            // D: Día
-    rec.semana,         // E: Semana
-    d,                  // F: Detalle
-    t,                  // G: N° Transacción
-    g,                  // H: Gasto *
-    fam,                // I: Familia
-    tipo,               // J: Tipo
-    v,                  // K: $ Valor
-    m,                  // L: Medio Pago
-    c,                  // M: Cuenta
-    ""                  // N: Notas (Columna 14)
+    MESES[dt.getMonth()], // A: Mes
+    dt.getFullYear(),     // B: Año
+    f,                    // C: Fecha Pago
+    DIAS[dt.getDay()],    // D: Día
+    getWk(dt),            // E: Semana
+    d,                    // F: Detalle / Descripción
+    t,                    // G: N° Transacción
+    g,                    // H: Gasto *
+    fam,                  // I: Familia
+    tipoGasto,            // J: Tipo
+    v,                    // K: $ Valor
+    m,                    // L: Medio Pago
+    c,                    // M: Cuenta
+    ""                    // N: Notas
   ];
 
   try {
-    sync('ld','Guardando…');
-    await xlAppend(SHEET_DATA, row);
-    rec.sync=true;
-    sync('ok','Excel conectado');
-    toast('✓ Guardado en Excel');
-  } catch(e){
-    sync('err','Error Excel');
-    toast('⚠️ Error al escribir en Excel','er');
-  }
+    sync('ld', 'Conectando con Excel...');
+    const tok = await getToken();
+    
+    // IMPORTANTE: Tu tabla en Excel debe llamarse TRegistros
+    const url = `https://graph.microsoft.com/v1.0/me/drive/items/${fileId}/workbook/worksheets('${SHEET_DATA}')/tables('TRegistros')/rows`;
+    
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + tok, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ values: [row] })
+    });
 
-  localRecs.push(rec); saveLocal();
-  renderHist(); renderRes(); resetForm();
-  btn.disabled=false; btn.textContent='Guardar en Excel ✓';
+    if (res.ok) {
+      toast('✓ Guardado en Excel 2026');
+      // Limpiar formulario
+      document.getElementById('fVal').value = '';
+      document.getElementById('fDesc').value = '';
+      document.getElementById('fTrans').value = '';
+      sync('ok', 'Excel conectado');
+    } else {
+      const errorData = await res.json();
+      console.error('Error de Graph:', errorData);
+      throw new Error();
+    }
+  } catch (e) {
+    sync('err', 'Error al guardar');
+    toast('⚠️ Error de conexión. Reintenta.', 'er');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<span>Guardar en Excel</span>';
+  }
 }
 
 
