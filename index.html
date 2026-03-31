@@ -520,27 +520,42 @@ function autoFam(){
 // ════════════════════════════════════════
 // FUNCION GUARDAR
 // ════════════════════════════════════════
-async function guardar() {
-  // 1. Captura de datos usando los IDs reales de tu HTML
-  const v = parseFloat(document.getElementById('fVal').value);
-  const f = document.getElementById('fDate').value;
-  const d = document.getElementById('fDesc').value.trim();
-  const g = document.getElementById('fGasto').value;
-  const m = document.getElementById('fMedio').value;
-  const c = document.getElementById('fCta').value;
-  const t = document.getElementById('fTrans').value.trim();
 
-  // Validaciones básicas
+async function guardar() {
+  // 1. Captura de datos con los IDs reales de tu RevIndex.html
+  const elVal = document.getElementById('fVal');
+  const elFec = document.getElementById('fDate');
+  const elDes = document.getElementById('fDesc');
+  const elGst = document.getElementById('fGasto');
+  const elMed = document.getElementById('fMedio');
+  const elCta = document.getElementById('fCta');
+  const elTra = document.getElementById('fTrans');
+
+  // Validación para evitar el error "null"
+  if (!elVal || !elFec || !elDes || !elGst) {
+    console.error("No se encontraron algunos campos en el HTML");
+    return;
+  }
+
+  const v = parseFloat(elVal.value);
+  const f = elFec.value;
+  const d = elDes.value.trim();
+  const g = elGst.value;
+  const m = elMed ? elMed.value : 'Transferencia';
+  const c = elCta ? elCta.value : 'Cta_Cte_BancoEstado';
+  const t = elTra ? elTra.value.trim() : '';
+
   if (!v || !f || !d || !g) {
     toast('Faltan datos obligatorios', 'er');
     return;
   }
 
   const btn = document.getElementById('btnSave');
+  const originalText = btn.innerHTML;
   btn.disabled = true;
   btn.innerHTML = '<span>Guardando...</span>';
 
-  // 2. Cálculos de tiempo para las columnas A, B, D y E
+  // 2. Preparación de datos para las 14 columnas del Excel 2026
   const dt = new Date(f + 'T12:00:00');
   const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
   const DIAS = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
@@ -548,7 +563,6 @@ async function guardar() {
   const fam = gastosMap[g] || 'Otros';
   const tipoGasto = (fam === 'Ingreso') ? 'Ingreso' : 'Egreso';
 
-  // 3. LA FILA DE 14 COLUMNAS (Mapeo exacto para Excel 2026)
   const row = [
     MESES[dt.getMonth()], // A: Mes
     dt.getFullYear(),     // B: Año
@@ -567,10 +581,10 @@ async function guardar() {
   ];
 
   try {
-    sync('ld', 'Conectando con Excel...');
+    sync('ld', 'Conectando...');
     const tok = await getToken();
     
-    // IMPORTANTE: Tu tabla en Excel debe llamarse TRegistros
+    // URL hacia la tabla TRegistros
     const url = `https://graph.microsoft.com/v1.0/me/drive/items/${fileId}/workbook/worksheets('${SHEET_DATA}')/tables('TRegistros')/rows`;
     
     const res = await fetch(url, {
@@ -581,26 +595,21 @@ async function guardar() {
 
     if (res.ok) {
       toast('✓ Guardado en Excel 2026');
-      // Limpiar formulario
-      document.getElementById('fVal').value = '';
-      document.getElementById('fDesc').value = '';
-      document.getElementById('fTrans').value = '';
+      elVal.value = '';
+      elDes.value = '';
+      if(elTra) elTra.value = '';
       sync('ok', 'Excel conectado');
     } else {
-      const errorData = await res.json();
-      console.error('Error de Graph:', errorData);
       throw new Error();
     }
   } catch (e) {
     sync('err', 'Error al guardar');
-    toast('⚠️ Error de conexión. Reintenta.', 'er');
+    toast('⚠️ Error de conexión', 'er');
   } finally {
     btn.disabled = false;
-    btn.innerHTML = '<span>Guardar en Excel</span>';
+    btn.innerHTML = originalText;
   }
 }
-
-
 // ════════════════════════════════════════
 // HISTORIAL
 // ════════════════════════════════════════
