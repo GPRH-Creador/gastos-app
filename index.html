@@ -555,8 +555,7 @@ async function guardar(){
   };
 
   // Columnas: Mes|Año|ID|Fecha Reg|Fecha Pago|Dia|Semana|Detalle|Transaccion|Gasto*|Familia|Tipo|Valor|Medio Pago|Cuenta
-  const row=[rec.mes,rec.año,'',f,f,rec.dia,rec.semana,rec.detalle,rec.transaccion||'',rec.gasto,rec.familia,rec.tipo,rec.valor,rec.medioPago,rec.cuenta];
-
+  const row=[rec.mes,rec.año,f,f,rec.dia,rec.semana,rec.detalle,rec.transaccion||'',rec.gasto,rec.familia,rec.tipo,rec.valor,rec.medioPago,rec.cuenta];
   try {
     sync('ld','Guardando…');
     await xlAppend(SHEET_DATA, row);
