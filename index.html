@@ -520,8 +520,10 @@ function autoFam(){
 // ════════════════════════════════════════
 // FUNCION GUARDAR
 // ════════════════════════════════════════
+
 async function guardar() {
-  // 1. CAPTURA DE DATOS (Usando los IDs reales de tu RevIndex.html)
+  // 1. CAPTURA DE DATOS - Usando los IDs EXACTOS de tu RevIndex.html
+  // Si uno de estos IDs no existe, el error de la línea 525 aparece.
   const elVal = document.getElementById('fVal');
   const elFec = document.getElementById('fDate');
   const elDes = document.getElementById('fDesc');
@@ -530,22 +532,23 @@ async function guardar() {
   const elCta = document.getElementById('fCta');
   const elTra = document.getElementById('fTrans');
 
-  // Verificación de seguridad para que no de error de "null"
+  // Verificación de seguridad: si alguno es null, nos detenemos antes del error
   if (!elVal || !elFec || !elDes || !elGst) {
-    console.error("No se encontraron los elementos en el HTML. Revisa los IDs.");
+    console.error("Error crítico: No se encuentran los campos fVal, fDate, fDesc o fGasto en tu HTML.");
+    toast("Error interno de IDs", "er");
     return;
   }
 
-  const v = parseFloat(elVal.value);
+  const v = parseFloat(elVal.value) || 0;
   const f = elFec.value;
   const d = elDes.value.trim();
   const g = elGst.value;
-  const m = elMed ? elMed.value : '';
-  const c = elCta ? elCta.value : '';
+  const m = elMed ? elMed.value : 'Transferencia';
+  const c = elCta ? elCta.value : 'Cta_Cte_BancoEstado';
   const t = elTra ? elTra.value.trim() : '';
 
   if (!v || !f || !d || !g) {
-    toast('Faltan datos obligatorios', 'er');
+    toast('Completa los campos obligatorios', 'er');
     return;
   }
 
@@ -554,15 +557,15 @@ async function guardar() {
   btn.disabled = true;
   btn.innerHTML = '<span>Guardando...</span>';
 
-  // 2. LÓGICA DE TIEMPO (Columnas A, B, D, E)
+  // 2. CÁLCULO DE TIEMPO (Columnas A, B, D, E)
   const dt = new Date(f + 'T12:00:00');
   const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
   const DIAS = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
   
   const fam = gastosMap[g] || 'Otros';
-  const tipoMovimiento = (fam === 'Ingreso') ? 'Ingreso' : 'Egreso';
+  const tipoMov = (fam === 'Ingreso') ? 'Ingreso' : 'Egreso';
 
-  // 3. ESTRUCTURA EXACTA 14 COLUMNAS (Excel 2026)
+  // 3. LA FILA DE 14 COLUMNAS (Mapeo exacto para Excel 2026)
   const row = [
     MESES[dt.getMonth()], // A: Mes
     dt.getFullYear(),     // B: Año
@@ -573,7 +576,7 @@ async function guardar() {
     t,                    // G: N° Transacción
     g,                    // H: Gasto *
     fam,                  // I: Familia
-    tipoMovimiento,       // J: Tipo
+    tipoMov,              // J: Tipo
     v,                    // K: $ Valor
     m,                    // L: Medio Pago
     c,                    // M: Cuenta
@@ -581,10 +584,10 @@ async function guardar() {
   ];
 
   try {
-    sync('ld', 'Enviando a Excel...');
+    sync('ld', 'Escribiendo en Excel...');
     const tok = await getToken();
     
-    // URL apuntando a la tabla TRegistros
+    // Asegúrate que SHEET_DATA sea 'Registros' y la tabla 'TRegistros'
     const url = `https://graph.microsoft.com/v1.0/me/drive/items/${fileId}/workbook/worksheets('${SHEET_DATA}')/tables('TRegistros')/rows`;
     
     const res = await fetch(url, {
@@ -594,20 +597,20 @@ async function guardar() {
     });
 
     if (res.ok) {
-      toast('✓ Guardado con éxito');
-      // Limpiar campos
+      toast('✓ Guardado correctamente');
+      // Limpiar el formulario
       elVal.value = '';
       elDes.value = '';
       if(elTra) elTra.value = '';
       sync('ok', 'Excel conectado');
     } else {
-      const errorJson = await res.json();
-      console.error("Error de Microsoft Graph:", errorJson);
+      const errorData = await res.json();
+      console.error('Error de Microsoft:', errorData);
       throw new Error();
     }
   } catch (e) {
     sync('err', 'Error al guardar');
-    toast('⚠️ Error de conexión', 'er');
+    toast('⚠️ Error de conexión con Excel', 'er');
   } finally {
     btn.disabled = false;
     btn.innerHTML = originalText;
