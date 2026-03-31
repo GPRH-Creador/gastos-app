@@ -1,296 +1,368 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-    <title>💰 Gastos Familiares 2026</title>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@azure/msal-browser@2.38.3/lib/msal-browser.min.js"></script>
-    <style>
-        :root {
-            --bg: #0f1117; --card: #1a1d27; --input: #22263a; --border: #2e334d;
-            --accent: #4f8ef7; --text: #ffffff; --text-dim: #94a3b8; --red: #ef4444; --green: #22c55e;
-        }
-        * { box-sizing: border-box; font-family: 'DM Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { margin: 0; background: var(--bg); color: var(--text); display: flex; justify-content: center; }
-        .container { width: 100%; max-width: 480px; padding: 20px; min-height: 100vh; display: flex; flex-direction: column; }
-        
-        #login-view, #app-view { display: none; flex-direction: column; width: 100%; }
-        .show { display: flex !important; }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>💰 Gastos Familiares</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script>
+  function loadMSAL() {
+    return new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/@azure/msal-browser@2.38.3/lib/msal-browser.min.js';
+      s.onload = resolve;
+      s.onerror = reject;
+      document.head.appendChild(s);
+    });
+  }
+</script>
+<style>
+:root{
+  --bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e334d;
+  --accent:#4f8ef7;--accent2:#7c5cfc;--green:#22c55e;--red:#ef4444;
+  --text:#ffffff;--text-dim:#94a3b8;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{
+  margin:0;padding:0;background:var(--bg);color:var(--text);
+  font-family:'DM Sans',sans-serif;font-size:14px;line-height:1.5;
+  overflow-x:hidden;
+}
+.app-container{max-width:500px;margin:0 auto;padding:16px;min-height:100vh;display:flex;flex-direction:column;}
 
-        .card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 24px; margin-bottom: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
-        h1 { font-size: 1.5rem; margin-bottom: 8px; text-align: center; font-weight: 700; }
-        .form-group { margin-bottom: 16px; }
-        label { display: block; font-size: 11px; color: var(--text-dim); margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-        input, select {
-            width: 100%; background: var(--input); border: 1px solid var(--border);
-            padding: 14px; border-radius: 12px; color: white; font-size: 16px; outline: none; transition: 0.2s;
-        }
-        input:focus { border-color: var(--accent); background: var(--border); }
-        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        
-        .btn { width: 100%; padding: 16px; border-radius: 14px; border: none; font-weight: 700; font-size: 16px; cursor: pointer; transition: 0.3s; }
-        .btn-primary { background: var(--accent); color: white; }
-        .btn-primary:active { transform: scale(0.98); opacity: 0.8; }
-        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
-        
-        .status { font-size: 12px; display: flex; align-items: center; gap: 8px; margin-bottom: 20px; color: var(--text-dim); background: var(--card); padding: 8px 16px; border-radius: 20px; align-self: center; border: 1px solid var(--border); }
-        .dot { width: 8px; height: 8px; border-radius: 50%; }
-        .dot.ok { background: var(--green); box-shadow: 0 0 8px var(--green); }
-        .dot.err { background: var(--red); box-shadow: 0 0 8px var(--red); }
-        .dot.load { background: var(--accent); animation: pulse 1s infinite; }
-        
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-        
-        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #2e334d; padding: 12px 24px; border-radius: 50px; font-size: 14px; opacity: 0; transition: 0.3s; z-index: 1000; pointer-events: none; }
-        .toast.show { opacity: 1; bottom: 40px; }
-    </style>
+/* Login View */
+#login-view{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;}
+.logo-icon{font-size:4rem;margin-bottom:1rem;filter:drop-shadow(0 0 20px rgba(79,142,247,0.3));}
+.btn-login{
+  background:linear-gradient(135deg, var(--accent), var(--accent2));
+  color:white;border:none;padding:16px 32px;border-radius:12px;
+  font-weight:600;font-size:1rem;cursor:pointer;width:100%;max-width:280px;
+  box-shadow:0 4px 15px rgba(79,142,247,0.4);transition:transform 0.2s;
+}
+.btn-login:active{transform:scale(0.96);}
+
+/* App Content */
+#app-content{display:none;flex-direction:column;animation:fadeIn 0.4s ease-out;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+/* Header */
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+.user-pill{background:var(--surface2);padding:6px 12px;border-radius:20px;display:flex;align-items:center;gap:8px;font-size:12px;border:1px solid var(--border);}
+.avatar{width:24px;height:24px;background:linear-gradient(var(--accent), var(--accent2));border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:10px;}
+
+/* Status Bar */
+.status-bar{display:flex;align-items:center;gap:8px;font-size:12px;margin-bottom:12px;color:var(--text-dim);padding:0 4px;}
+.sdot{width:8px;height:8px;border-radius:50%;transition:0.3s;}
+.sdot.ok{background:var(--green);box-shadow:0 0 8px var(--green);}
+.sdot.ld{background:var(--accent);animation:pulse 1s infinite;}
+.sdot.err{background:var(--red);box-shadow:0 0 8px var(--red);}
+@keyframes pulse{0%{opacity:0.4;}50%{opacity:1;}100%{opacity:0.4;}}
+
+/* Card & Forms */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:16px;}
+.form-group{margin-bottom:16px;}
+.form-group label{display:block;color:var(--text-dim);font-size:11px;margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+input, select{
+  width:100%;background:var(--surface2);border:1px solid var(--border);
+  padding:12px;border-radius:10px;color:white;font-size:15px;outline:none;transition:0.2s;
+}
+input:focus{border-color:var(--accent);background:var(--surface);}
+.row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+
+/* Buttons */
+.btn-save{
+  width:100%;padding:16px;border-radius:12px;border:none;font-weight:700;
+  font-size:1rem;cursor:pointer;background:var(--accent);color:white;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  transition:0.2s;box-shadow:0 4px 12px rgba(79,142,247,0.2);
+}
+.btn-save:active{transform:scale(0.98);}
+.btn-save:disabled{opacity:0.6;cursor:not-allowed;filter:grayscale(1);}
+
+/* Toast */
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+  background:var(--surface2);color:white;padding:12px 24px;border-radius:30px;
+  font-weight:600;font-size:13px;box-shadow:0 10px 25px rgba(0,0,0,0.5);
+  opacity:0;transition:0.3s;pointer-events:none;z-index:1000;border:1px solid var(--border);
+}
+.toast.show{opacity:1;bottom:40px;}
+.toast.er{border-color:var(--red);color:var(--red);}
+</style>
 </head>
 <body>
 
-<div class="container">
-    <div id="login-view">
-        <div style="font-size: 4rem; text-align: center; margin-top: 15vh;">💰</div>
-        <h1>Mis Gastos 2026</h1>
-        <p style="text-align: center; color: var(--text-dim); margin-bottom: 2rem;">Acceso a Gestión Financiera</p>
-        <button class="btn btn-primary" onclick="login()">Entrar con Microsoft</button>
-        <p id="error-msg" style="color: var(--red); font-size: 12px; text-align: center; margin-top: 20px;"></p>
+<div class="app-container">
+  <div id="login-view">
+    <div class="logo-icon">💰</div>
+    <h1 style="margin:0 0 8px 0; font-size:1.8rem;">Gastos 2026</h1>
+    <p style="color:var(--text-dim); margin:0 0 32px 0;">Gestión Financiera Familiar</p>
+    <button class="btn-login" id="btnLogin">Iniciar Sesión</button>
+  </div>
+
+  <div id="app-content">
+    <div class="header">
+      <div class="user-pill">
+        <div class="avatar" id="uInit">?</div>
+        <span id="uName">Cargando...</span>
+      </div>
+      <button onclick="logout()" style="background:none;border:none;color:var(--text-dim);font-size:11px;font-weight:600;text-transform:uppercase;cursor:pointer;">Salir</button>
     </div>
 
-    <div id="app-view">
-        <div class="status">
-            <div id="status-dot" class="dot err"></div>
-            <span id="status-text">Iniciando...</span>
-        </div>
-
-        <div class="card">
-            <div class="form-group">
-                <label>Monto ($)</label>
-                <input type="number" id="f-valor" placeholder="Ej: 15000" inputmode="numeric">
-            </div>
-
-            <div class="row">
-                <div class="form-group">
-                    <label>Fecha</label>
-                    <input type="date" id="f-fecha">
-                </div>
-                <div class="form-group">
-                    <label>Gasto / Item</label>
-                    <select id="f-gasto">
-                        </select>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>Detalle</label>
-                <input type="text" id="f-detalle" placeholder="¿En qué se gastó?">
-            </div>
-
-            <div class="row">
-                <div class="form-group">
-                    <label>Medio</label>
-                    <select id="f-medio">
-                        <option value="Transferencia">Transferencia</option>
-                        <option value="Débito">Débito</option>
-                        <option value="Crédito">Crédito</option>
-                        <option value="Efectivo">Efectivo</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Cuenta</label>
-                    <select id="f-cuenta">
-                        <option value="Cta_Cte_BancoEstado">Cta Cte Bco Estado</option>
-                        <option value="Mastercard Tenpo">Mastercard Tenpo</option>
-                        <option value="Mastercard Falabella">Masc. Falabella</option>
-                        <option value="Cta_Rut_BancoEstado">Cta Rut</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>N° Transacción (Opcional)</label>
-                <input type="text" id="f-trans" placeholder="Ej: 123456">
-            </div>
-
-            <button id="btn-save" class="btn btn-primary" onclick="guardar()">Guardar en Excel</button>
-            <button onclick="logout()" style="background:none; border:none; color:var(--text-dim); width:100%; margin-top:25px; font-size:12px; text-decoration:underline; cursor:pointer;">Cerrar Sesión</button>
-        </div>
+    <div class="status-bar">
+      <div id="sdot" class="sdot err"></div>
+      <span id="slbl">Sin conexión</span>
     </div>
+
+    <div class="card">
+      <div class="form-group">
+        <label>Valor ($)</label>
+        <input type="number" id="fVal" placeholder="0" inputmode="numeric">
+      </div>
+
+      <div class="row-2">
+        <div class="form-group">
+          <label>Fecha Pago</label>
+          <input type="date" id="fDate">
+        </div>
+        <div class="form-group">
+          <label>Gasto *</label>
+          <select id="fGasto">
+            <option value="">Selecciona...</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Detalle / Descripción</label>
+        <input type="text" id="fDesc" placeholder="Ej: Supermercado Lider">
+      </div>
+
+      <div class="row-2">
+        <div class="form-group">
+          <label>Medio Pago</label>
+          <select id="fMedio">
+            <option value="Transferencia">Transferencia</option>
+            <option value="Débito">Débito</option>
+            <option value="Crédito">Crédito</option>
+            <option value="Efectivo">Efectivo</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Cuenta</label>
+          <select id="fCta">
+            <option value="Cta_Cte_BancoEstado">Cta Cte BancoEstado</option>
+            <option value="Mastercard Tenpo">Mastercard Tenpo</option>
+            <option value="Mastercard Falabella">Mastercard Falabella</option>
+            <option value="Cta_Rut_BancoEstado">Cta Rut</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>N° Transacción</label>
+        <input type="text" id="fTrans" placeholder="Opcional">
+      </div>
+
+      <button id="btnSave" class="btn-save" onclick="save()">
+        <span>Guardar en Excel</span>
+      </button>
+    </div>
+  </div>
 </div>
 
 <div id="toast" class="toast"></div>
 
 <script>
-// USANDO TUS CONSTANTES ORIGINALES
-const CLIENT_ID  = '295e1bdd-225b-49d3-a0d2-aa08bdf211e3';
-const FILE_NAME  = 'Control_de_Gastos_2026.xlsx';
-const SHEET_DATA = 'Registros';
+// ════════════════════════════════════════
+// CONFIGURACIÓN (TUS DATOS ORIGINALES)
+// ════════════════════════════════════════
+const CLIENT_ID    = '295e1bdd-225b-49d3-a0d2-aa08bdf211e3';
+const FILE_NAME    = 'Control_de_Gastos_2026.xlsx';
+const SHEET_DATA   = 'Registros';
 const SHEET_LISTAS = 'Listas';
-const SCOPES     = ['Files.ReadWrite', 'User.Read'];
+const SCOPES       = ['User.Read', 'Files.ReadWrite'];
 
-const MSAL = new msal.PublicClientApplication({
-    auth: {
-        clientId: CLIENT_ID,
-        authority: "https://login.microsoftonline.com/common",
-        redirectUri: window.location.origin + window.location.pathname
-    },
-    cache: { cacheLocation: "localStorage", storeAuthStateInCookie: true }
-});
+let MSAL=null, user=null, fileId=null, gastosMap={};
 
-let user = null;
-let fileId = null;
-let gastosCache = [];
+// ════════════════════════════════════════
+// INICIO Y AUTH
+// ════════════════════════════════════════
+window.onload=async()=>{
+  try{
+    await loadMSAL();
+    MSAL=new msal.PublicClientApplication({
+      auth:{
+        clientId:CLIENT_ID,
+        authority:'https://login.microsoftonline.com/common',
+        redirectUri:window.location.origin+window.location.pathname
+      },
+      cache:{cacheLocation:'localStorage',storeAuthStateInCookie:true}
+    });
 
-async function init() {
-    try {
-        const resp = await MSAL.handleRedirectPromise();
-        user = resp ? resp.account : MSAL.getAllAccounts()[0];
-
-        if (user) {
-            document.getElementById('app-view').classList.add('show');
-            document.getElementById('f-fecha').valueAsDate = new Date();
-            conectar();
-        } else {
-            document.getElementById('login-view').classList.add('show');
-        }
-    } catch (e) {
-        document.getElementById('error-msg').textContent = "Error de Auth: " + e.message;
+    const res=await MSAL.handleRedirectPromise();
+    if(res) user=res.account;
+    else {
+      const accounts=MSAL.getAllAccounts();
+      if(accounts.length>0) user=accounts[0];
     }
+
+    if(user) showApp();
+    else document.getElementById('btnLogin').onclick=()=>MSAL.loginRedirect({scopes:SCOPES});
+
+  }catch(e){ toast('Error inicial: '+e.message,'er'); }
+};
+
+function showApp(){
+  document.getElementById('login-view').style.display='none';
+  document.getElementById('app-content').style.display='flex';
+  document.getElementById('uName').textContent=user.name.split(' ')[0];
+  document.getElementById('uInit').textContent=user.name[0];
+  document.getElementById('fDate').valueAsDate=new Date();
+  connect();
 }
 
-async function login() { await MSAL.loginRedirect({ scopes: SCOPES }); }
-async function logout() { localStorage.clear(); MSAL.logoutRedirect(); }
+function logout(){ localStorage.clear(); MSAL.logoutRedirect(); }
 
-async function getToken() {
-    const req = { scopes: SCOPES, account: user };
-    try { return (await MSAL.acquireTokenSilent(req)).accessToken; }
-    catch (e) { return (await MSAL.acquireTokenPopup(req)).accessToken; }
+async function getToken(){
+  try{
+    const res=await MSAL.acquireTokenSilent({scopes:SCOPES,account:user});
+    return res.accessToken;
+  }catch(e){
+    MSAL.loginRedirect({scopes:SCOPES});
+  }
 }
 
-async function conectar() {
-    try {
-        setStatus('load', 'Sincronizando...');
-        const token = await getToken();
-        // Buscamos el archivo en todo el Drive
-        const res = await fetch(`https://graph.microsoft.com/v1.0/me/drive/root/search(q='${FILE_NAME}')`, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-        const data = await res.json();
-        if (data.value && data.value.length > 0) {
-            fileId = data.value[0].id;
-            await cargarListas(token);
-            setStatus('ok', 'Excel Conectado');
-        } else { throw new Error("Archivo no encontrado"); }
-    } catch (e) { setStatus('err', 'Error de conexión'); }
+// ════════════════════════════════════════
+// CONEXIÓN EXCEL Y LISTAS
+// ════════════════════════════════════════
+async function connect(){
+  try{
+    sync('ld','Buscando archivo...');
+    const tok=await getToken();
+    const res=await fetch(`https://graph.microsoft.com/v1.0/me/drive/root/search(q='${FILE_NAME}')`,{
+      headers:{'Authorization':'Bearer '+tok}
+    });
+    const data=await res.json();
+    if(data.value && data.value.length>0){
+      fileId=data.value[0].id;
+      await loadLists(tok);
+      sync('ok','Excel Conectado');
+    } else throw new Error('No hallado');
+  }catch(e){ sync('err','Error Excel'); }
 }
 
-async function cargarListas(token) {
-    try {
-        // Obtenemos los gastos de la columna G de la hoja Listas (según tu Excel)
-        const res = await fetch(`https://graph.microsoft.com/v1.0/me/drive/items/${fileId}/workbook/worksheets('${SHEET_LISTAS}')/range(address='G2:H100')`, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-        const data = await res.json();
-        const sel = document.getElementById('f-gasto');
-        sel.innerHTML = "";
-        
-        if(data.values) {
-            gastosCache = data.values.filter(r => r[0]);
-            gastosCache.forEach(r => {
-                const opt = document.createElement('option');
-                opt.value = r[0]; opt.textContent = r[0];
-                sel.appendChild(opt);
-            });
+async function loadLists(tok){
+  try{
+    // Carga Gasto y Familia desde la hoja Listas (Columnas G y H)
+    const res=await fetch(`https://graph.microsoft.com/v1.0/me/drive/items/${fileId}/workbook/worksheets('${SHEET_LISTAS}')/range(address='G2:H200')`,{
+      headers:{'Authorization':'Bearer '+tok}
+    });
+    const data=await res.json();
+    if(data.values){
+      const sel=document.getElementById('fGasto');
+      sel.innerHTML='<option value="">Selecciona...</option>';
+      data.values.forEach(r=>{
+        if(r[0]){
+          gastosMap[r[0]]=r[1];
+          const opt=document.createElement('option');
+          opt.value=r[0]; opt.textContent=r[0];
+          sel.appendChild(opt);
         }
-    } catch(e) { console.warn("No se pudieron cargar las listas"); }
+      });
+    }
+  }catch(e){ console.warn('Listas no cargadas'); }
 }
 
-async function guardar() {
-    const val = document.getElementById('f-valor').value;
-    const fec = document.getElementById('f-fecha').value;
-    const det = document.getElementById('f-detalle').value;
-    const gst = document.getElementById('f-gasto').value;
+// ════════════════════════════════════════
+// GUARDAR (CORRECCIÓN 14 COLUMNAS)
+// ════════════════════════════════════════
+async function save(){
+  const val=document.getElementById('fVal').value;
+  const fec=document.getElementById('fDate').value;
+  const gst=document.getElementById('fGasto').value;
+  const det=document.getElementById('fDesc').value.trim();
+  
+  if(!val||!fec||!gst||!det){ toast('Completa los campos','er'); return; }
 
-    if (!val || !fec || !det) return showToast("Faltan datos", true);
+  const btn=document.getElementById('btnSave');
+  btn.disabled=true;
+  btn.innerHTML='<span class="sdot ld"></span><span>Guardando...</span>';
 
-    const btn = document.getElementById('btn-save');
-    btn.disabled = true; btn.textContent = "Procesando...";
+  const d=new Date(fec+'T12:00:00');
+  const meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const dias=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  
+  const fam=gastosMap[gst]||'Otros';
+  const tipo=(fam==='Ingreso')?'Ingreso':'Egreso';
 
-    const d = new Date(fec + 'T12:00:00');
-    const meses = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
-    const dias = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
+  // ESTRUCTURA EXACTA 2026 (14 COLUMNAS: A a N)
+  const row=[
+    meses[d.getMonth()],            // A: Mes
+    d.getFullYear(),                // B: Año
+    fec,                            // C: Fecha Pago
+    dias[d.getDay()],               // D: Día
+    getWk(d),                       // E: Semana
+    det,                            // F: Detalle
+    document.getElementById('fTrans').value||'', // G: N° Trans
+    gst,                            // H: Gasto *
+    fam,                            // I: Familia
+    tipo,                           // J: Tipo
+    parseFloat(val),                // K: $ Valor
+    document.getElementById('fMedio').value, // L: Medio
+    document.getElementById('fCta').value,   // M: Cuenta
+    ''                              // N: Notas
+  ];
+
+  try{
+    const tok=await getToken();
+    const url=`https://graph.microsoft.com/v1.0/me/drive/items/${fileId}/workbook/worksheets('${SHEET_DATA}')/tables('TRegistros')/rows`;
     
-    // Buscar la familia en el cache de listas
-    const infoGasto = gastosCache.find(r => r[0] === gst);
-    const familia = infoGasto ? infoGasto[1] : "Otros";
-    const tipo = (familia === "Ingreso") ? "Ingreso" : "Egreso";
+    const res=await fetch(url,{
+      method:'POST',
+      headers:{'Authorization':'Bearer '+tok,'Content-Type':'application/json'},
+      body:JSON.stringify({values:[row]})
+    });
 
-    // MAPEADO EXACTO A 14 COLUMNAS (A-N)
-    const row = [
-        meses[d.getMonth()],            // A: Mes
-        d.getFullYear(),                 // B: Año
-        fec,                             // C: Fecha Pago
-        dias[d.getDay()],                // D: Día
-        getWk(d),                        // E: Semana
-        det,                             // F: Detalle
-        document.getElementById('f-trans').value || "", // G: N° Transacción
-        gst,                             // H: Gasto *
-        familia,                         // I: Familia
-        tipo,                            // J: Tipo
-        parseFloat(val),                 // K: $ Valor
-        document.getElementById('f-medio').value, // L: Medio Pago
-        document.getElementById('f-cuenta').value, // M: Cuenta
-        ""                               // N: Notas
-    ];
-
-    try {
-        const token = await getToken();
-        // Insertamos en la tabla TRegistros (debe existir en tu hoja Registros)
-        const url = `https://graph.microsoft.com/v1.0/me/drive/items/${fileId}/workbook/worksheets('${SHEET_DATA}')/tables('TRegistros')/rows`;
-        
-        const res = await fetch(url, {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ values: [row] })
-        });
-
-        if (res.ok) {
-            showToast("✓ Registrado con éxito");
-            document.getElementById('f-valor').value = "";
-            document.getElementById('f-detalle').value = "";
-            document.getElementById('f-trans').value = "";
-        } else { throw new Error(); }
-    } catch (e) {
-        showToast("Error al guardar", true);
-    } finally {
-        btn.disabled = false; btn.textContent = "Guardar en Excel";
-    }
+    if(res.ok){
+      toast('✓ Guardado correctamente');
+      document.getElementById('fVal').value='';
+      document.getElementById('fDesc').value='';
+      document.getElementById('fTrans').value='';
+    } else throw new Error();
+    
+  }catch(e){
+    toast('Error al escribir en Excel','er');
+  } finally {
+    btn.disabled=false;
+    btn.innerHTML='<span>Guardar en Excel</span>';
+  }
 }
 
-function getWk(d) {
-    const target = new Date(d.valueOf());
-    const dayNr = (d.getDay() + 6) % 7;
-    target.setDate(target.getDate() - dayNr + 3);
-    const firstThursday = target.valueOf();
-    target.setMonth(0, 1);
-    if (target.getDay() !== 4) target.setMonth(0, 1 + ((4 - target.getDay() + 7) % 7));
-    return 1 + Math.ceil((firstThursday - target) / 604800000);
+// ════════════════════════════════════════
+// UTILS
+// ════════════════════════════════════════
+function getWk(d){
+  const target=new Date(d.valueOf());
+  const dayNr=(d.getDay()+6)%7;
+  target.setDate(target.getDate()-dayNr+3);
+  const firstThursday=target.valueOf();
+  target.setMonth(0,1);
+  if(target.getDay()!==4) target.setMonth(0,1+((4-target.getDay()+7)%7));
+  return 1+Math.ceil((firstThursday-target)/604800000);
 }
 
-function setStatus(cl, txt) {
-    document.getElementById('status-dot').className = 'dot ' + cl;
-    document.getElementById('status-text').textContent = txt;
+function sync(st,lbl){
+  document.getElementById('sdot').className='sdot '+st;
+  document.getElementById('slbl').textContent=lbl;
 }
 
-function showToast(m, err = false) {
-    const t = document.getElementById('toast');
-    t.textContent = m; t.style.background = err ? 'var(--red)' : 'var(--surface2)';
-    t.style.border = err ? '1px solid var(--red)' : '1px solid var(--accent)';
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 3000);
+function toast(msg,type='ok'){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast '+(type==='er'?'er':'')+' show';
+  setTimeout(()=>t.classList.remove('show'),3000);
 }
-
-init();
 </script>
 </body>
 </html>
