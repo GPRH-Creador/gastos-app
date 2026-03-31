@@ -6,7 +6,17 @@
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <title>💰 Gastos Familiares</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
-<script src="https://alcdn.msauth.net/browser/2.38.3/js/msal-browser.min.js"></script>
+<script>
+  function loadMSAL() {
+    return new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/@azure/msal-browser@2.38.3/lib/msal-browser.min.js';
+      s.onload = resolve;
+      s.onerror = reject;
+      document.head.appendChild(s);
+    });
+  }
+</script>
 <style>
 :root{
   --bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e334d;
@@ -360,6 +370,7 @@ async function getToken() {
 function signOut(){ msalInstance.logoutPopup(); location.reload(); }
 
 window.onload = async () => {
+  await loadMSAL();
   initMsal();
   await msalInstance.handleRedirectPromise().catch(()=>{});
   const accts = msalInstance.getAllAccounts();
