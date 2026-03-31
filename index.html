@@ -34,7 +34,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .login-sub{font-size:14px;color:var(--muted);margin-bottom:36px;line-height:1.6;max-width:320px}
 .btn-ms{display:flex;align-items:center;gap:12px;background:#fff;color:#1a1a1a;padding:14px 28px;border-radius:12px;font-family:var(--font);font-size:15px;font-weight:700;border:none;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.3);transition:all .2s}
 .btn-ms:hover{transform:translateY(-2px)}
+.btn-ms:disabled{opacity:.5;cursor:not-allowed;transform:none}
 .login-note{font-size:11px;color:var(--muted);margin-top:20px;line-height:1.5}
+.auth-error{background:rgba(239,68,68,.1);border:1px solid var(--red);color:var(--red);padding:12px;border-radius:8px;margin-bottom:20px;font-size:13px}
 
 /* APP */
 #app-shell{display:none}
@@ -131,515 +133,668 @@ select{font-size:16px!important}
 /* MANTENEDOR */
 .mhdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
 .mtitle{font-size:14px;font-weight:700}
-.msub{font-size:11px;color:var(--muted);margin-top:1px}
-.btn-ref{display:flex;align-items:center;gap:5px;background:rgba(79,142,247,.1);border:1.5px solid rgba(79,142,247,.28);color:var(--accent);border-radius:var(--rs);padding:6px 13px;font-family:var(--font);font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap}
-.btn-ref:disabled{opacity:.4;cursor:not-allowed}
-.info-box{background:rgba(79,142,247,.05);border:1px solid rgba(79,142,247,.18);border-radius:var(--rs);padding:11px 13px;font-size:12px;color:var(--muted);line-height:1.55;margin-bottom:11px}
-.info-box strong{color:var(--accent)}
-.ctable{width:100%;border-collapse:collapse;border-radius:var(--rs);overflow:hidden;border:1.5px solid var(--border)}
-.ctable th{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:1.5px solid var(--border);background:var(--surface2)}
-.ctable td{padding:8px 10px;font-size:13px;border-bottom:1px solid rgba(46,51,77,.4);vertical-align:middle}
-.ctable tr:last-child td{border:none}
-.ctable tr:hover td{background:rgba(79,142,247,.03)}
-.td-f{display:inline-block;padding:2px 7px;border-radius:20px;font-size:11px;font-weight:600;background:rgba(79,142,247,.09);color:var(--accent);border:1px solid rgba(79,142,247,.18)}
-.btn-dc{background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:2px 4px;border-radius:4px;transition:color .2s}
-.btn-dc:hover{color:var(--red)}
-.add-form{background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:9px;margin-top:12px}
-.add-form h4{font-size:13px;font-weight:700;color:var(--accent)}
-.arow{display:grid;grid-template-columns:1fr 1fr;gap:7px}
-.ai,.as{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--rs);padding:8px 11px;font-family:var(--font);font-size:14px;color:var(--text);outline:none;transition:border-color .2s;-webkit-appearance:none;width:100%}
-.ai:focus,.as:focus{border-color:var(--accent)}
-.as option{background:var(--surface2)}
-.btn-add{padding:10px;border-radius:var(--rs);background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-family:var(--font);font-size:14px;font-weight:700;border:none;cursor:pointer}
-.btn-add:disabled{opacity:.4;cursor:not-allowed}
+.mtable{width:100%;border-collapse:collapse}
+.mtable td{padding:9px;border-bottom:1px solid var(--border);font-size:12px}
+.mtable td:nth-child(2){color:var(--muted)}
+.td-f{background:var(--surface2);padding:3px 6px;border-radius:4px;display:inline-block}
+.btn-dc{background:transparent;border:none;cursor:pointer;font-size:14px;padding:0;transition:transform .2s}
+.btn-dc:hover{transform:scale(1.2)}
+.add-form{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:13px;margin-bottom:13px;display:flex;flex-direction:column;gap:9px}
 
 /* TOAST */
-.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);padding:11px 20px;border-radius:40px;font-weight:700;font-size:13px;z-index:999;transition:transform .35s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;pointer-events:none}
-.toast.ok{background:var(--green);color:#fff;box-shadow:0 8px 24px rgba(34,197,94,.38)}
-.toast.er{background:var(--red);color:#fff;box-shadow:0 8px 24px rgba(239,68,68,.38)}
-.toast.show{transform:translateX(-50%) translateY(0)}
-.spinner{width:17px;height:17px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;margin:0 auto}
-@keyframes spin{to{transform:rotate(360deg)}}
-.safe{height:env(safe-area-inset-bottom,14px)}
-@media(max-width:400px){.grid2,.arow{grid-template-columns:1fr}}
+.toast{position:fixed;bottom:-100px;left:50%;transform:translateX(-50%);background:var(--surface);border:1.5px solid var(--border);color:var(--text);padding:13px 20px;border-radius:12px;font-size:13px;font-weight:600;z-index:999;transition:bottom .3s;white-space:nowrap}
+.toast.show{bottom:20px}
+.toast.er{border-color:var(--red);background:rgba(239,68,68,.1);color:var(--red)}
 </style>
 </head>
 <body>
 
-<!-- LOGIN -->
+<!-- LOGIN SCREEN -->
 <div id="login-screen">
   <div class="login-logo">💰</div>
-  <div class="login-title">Gastos Familiares</div>
-  <div class="login-sub">Inicia sesión con tu cuenta Microsoft para conectar directamente con tu Excel en OneDrive.</div>
-  <button class="btn-ms" onclick="signIn()">
-    <svg width="22" height="22" viewBox="0 0 21 21"><rect x="1" y="1" width="9" height="9" fill="#f25022"/><rect x="11" y="1" width="9" height="9" fill="#7fba00"/><rect x="1" y="11" width="9" height="9" fill="#00a4ef"/><rect x="11" y="11" width="9" height="9" fill="#ffb900"/></svg>
+  <h1 class="login-title">Gastos Familiares 2026</h1>
+  <p class="login-sub">Registra tus ingresos y egresos<br/>Sincroniza automáticamente con Excel en OneDrive</p>
+  <div id="auth-error-container"></div>
+  <button id="btn-login" class="btn-ms" onclick="login()">
+    <span style="font-size:18px">🔐</span>
     Iniciar sesión con Microsoft
   </button>
-  <div class="login-note">🔒 Solo accede a tu archivo Excel en OneDrive.<br>Ningún dato pasa por servidores externos.</div>
+  <p class="login-note">
+    Tu información se guarda de forma segura en OneDrive.<br/>
+    Requiere autenticación con una cuenta Microsoft.
+  </p>
 </div>
 
-<!-- APP -->
+<!-- APP SHELL -->
 <div id="app-shell">
-
+  <!-- TOPBAR -->
   <div class="topbar">
     <div class="topbar-left">
       <div class="t-logo">💰</div>
-      <div><div class="t-title">Gastos Familia</div><div class="t-sub" id="uname">–</div></div>
+      <div>
+        <div class="t-title">Gastos Familiares</div>
+        <div class="t-sub" id="user-info">Usuario</div>
+      </div>
     </div>
     <div class="topbar-right">
-      <div class="sync-pill"><div class="sdot" id="sdot"></div><span id="slbl">–</span></div>
-      <button class="btn-out" onclick="signOut()">Salir</button>
+      <div class="sync-pill">
+        <div class="sdot ok" id="sdot"></div>
+        <span id="slbl">Conectado</span>
+      </div>
+      <button class="btn-out" onclick="logout()">Salir</button>
     </div>
   </div>
 
+  <!-- TABS -->
   <div class="tabs">
-    <button class="tab active" onclick="showView('form',this)">✏️ Registrar</button>
-    <button class="tab"       onclick="showView('hist',this)">📋 Historial</button>
-    <button class="tab"       onclick="showView('res',this)">📊 Resumen</button>
-    <button class="tab"       onclick="showView('maint',this)">⚙️ Categorías</button>
+    <button class="tab active" onclick="showView('nuevo',this)">➕ Nuevo Gasto</button>
+    <button class="tab" onclick="showView('hist',this)">📋 Historial</button>
+    <button class="tab" onclick="showView('res',this)">📊 Resumen</button>
+    <button class="tab" onclick="showView('maint',this)">⚙️ Categorías</button>
   </div>
 
-  <!-- REGISTRAR -->
-  <div class="view active" id="view-form"><div class="wrap">
-    <div class="tipo-toggle">
-      <button class="tipo-btn ae" id="be" onclick="setTipo('Egreso')">↑ Egreso</button>
-      <button class="tipo-btn"   id="bi" onclick="setTipo('Ingreso')">↓ Ingreso</button>
-    </div>
-    <div class="amt-wrap">
-      <div class="amt-lbl">MONTO</div>
-      <div class="amt-row"><span class="cur">$</span>
-        <input class="amt-input" id="f-v" type="number" inputmode="numeric" placeholder="0" min="0"/>
+  <!-- VIEW: NUEVO GASTO -->
+  <div id="view-nuevo" class="view active">
+    <div class="wrap">
+      <div class="tipo-toggle">
+        <button class="tipo-btn ae" id="btn-egr" onclick="setTipo('Egreso',this)">💸 Egreso</button>
+        <button class="tipo-btn ai" id="btn-ing" onclick="setTipo('Ingreso',this)">💵 Ingreso</button>
       </div>
-    </div>
-    <div class="field"><label>FECHA DE PAGO</label><input type="date" id="f-f"/></div>
-    <div class="field"><label>DESCRIPCIÓN / DETALLE</label>
-      <input type="text" id="f-d" placeholder="Ej: Supermercado Lider" autocomplete="off"/>
-    </div>
-    <div class="field">
-      <label>TIPO DE GASTO ★</label>
-      <select id="f-g" onchange="autoFam()"><option value="">— Cargando… —</option></select>
-      <div class="fam-chip hidden" id="fchip">🏷️ <span id="ftxt"></span></div>
-    </div>
-    <div class="grid2">
-      <div class="field"><label>MEDIO DE PAGO</label>
-        <select id="f-m">
-          <option value="">— Selecciona —</option>
-          <option>Transferencia</option><option>Crédito</option>
-          <option>Débito</option><option>Efectivo</option>
+
+      <div class="amt-wrap">
+        <label class="amt-lbl">Monto</label>
+        <div class="amt-row">
+          <span class="cur">$</span>
+          <input id="amt" class="amt-input" type="number" placeholder="0" min="0"/>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Fecha</label>
+        <input id="fecha" type="date"/>
+      </div>
+
+      <div class="field">
+        <label>Descripción / Detalle *</label>
+        <input id="detalle" type="text" placeholder="ej: Compra supermercado"/>
+      </div>
+
+      <div class="field">
+        <label>Categoría / Gasto *</label>
+        <select id="gasto"></select>
+      </div>
+
+      <div class="field">
+        <label>Familia / Grupo *</label>
+        <select id="familia">
+          <option value="">-- Seleccionar --</option>
+          <option value="Ingreso">Ingreso</option>
+          <option value="Gastos Comunes">Gastos Comunes</option>
+          <option value="Alimentación">Alimentación</option>
+          <option value="Transporte">Transporte</option>
+          <option value="Salud">Salud</option>
+          <option value="Educación">Educación</option>
+          <option value="Entretenimiento">Entretenimiento</option>
+          <option value="Servicios">Servicios</option>
+          <option value="Otros">Otros</option>
         </select>
       </div>
-      <div class="field"><label>CUENTA</label>
-        <select id="f-c">
-          <option value="">— Selecciona —</option>
-          <option>Cta_Cte_BancoEstado</option><option>Cta_Rut_BancoEstado</option>
-          <option>Cta_Ahorro_BancoEstado</option><option>Mastercard BE</option>
-          <option>Visa BE</option><option>Mastercard Falabella</option>
-          <option>Mastercard Itau</option><option>Mastercard Tenpo</option>
-          <option>Mastercard Cencosud</option><option>Mastercard Ripley</option>
-          <option>Efectivo</option><option>Katheryne Casanova</option>
+
+      <div class="field">
+        <label>Medio de Pago</label>
+        <select id="medio-pago">
+          <option value="Efectivo">Efectivo</option>
+          <option value="Transferencia">Transferencia</option>
+          <option value="Tarjeta Débito">Tarjeta Débito</option>
+          <option value="Tarjeta Crédito">Tarjeta Crédito</option>
+          <option value="Cheque">Cheque</option>
+          <option value="Otro">Otro</option>
         </select>
       </div>
-    </div>
-    <div class="field"><label>N° TRANSACCIÓN (opcional)</label>
-      <input type="text" id="f-t" placeholder="Ej: 7083716" inputmode="numeric"/>
-    </div>
-    <button class="btn-submit" id="bsave" onclick="guardar()">Guardar en Excel ✓</button>
-  </div></div>
 
-  <!-- HISTORIAL -->
-  <div class="view" id="view-hist"><div class="wrap">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px">
-      <div style="font-size:15px;font-weight:700">Historial</div>
-      <div style="font-size:11px;color:var(--muted);font-family:var(--mono)" id="hcnt">–</div>
-    </div>
-    <div class="sb"><span style="color:var(--muted)">🔍</span>
-      <input type="text" id="si" placeholder="Buscar…" oninput="renderHist()"/>
-    </div>
-    <div class="hl" id="hl"></div>
-  </div></div>
-
-  <!-- RESUMEN -->
-  <div class="view" id="view-res"><div class="wrap">
-    <div class="kgrid">
-      <div class="kcard"><div class="klbl">Ingresos</div><div class="kval in" id="ki">$0</div></div>
-      <div class="kcard"><div class="klbl">Egresos</div><div class="kval eg" id="ke">$0</div></div>
-      <div class="kcard"><div class="klbl">Balance</div><div class="kval ba" id="kb">$0</div></div>
-      <div class="kcard"><div class="klbl">Registros</div><div class="kval ct" id="kc">0</div></div>
-    </div>
-    <div class="stitle">Top egresos por categoría</div>
-    <div id="cl"></div>
-  </div></div>
-
-  <!-- MANTENEDOR -->
-  <div class="view" id="view-maint"><div class="wrap">
-    <div class="mhdr">
-      <div><div class="mtitle">Categorías de gastos</div>
-        <div class="msub">Lee y guarda en la hoja <strong>Listas</strong> de tu Excel</div>
+      <div class="field">
+        <label>Cuenta / Banco (Opcional)</label>
+        <input id="cuenta" type="text" placeholder="ej: Cta_Cte_BancoEstado"/>
       </div>
-      <button class="btn-ref" id="bref" onclick="loadListas()">🔄 Actualizar</button>
+
+      <div class="field">
+        <label>Notas (Opcional)</label>
+        <input id="notas" type="text" placeholder="Anotaciones adicionales"/>
+      </div>
+
+      <button id="btn-save" class="btn-submit" onclick="savGasto()">Guardar Gasto en Excel</button>
     </div>
-    <div class="info-box">
-      Los cambios se guardan <strong>directamente en tu Excel</strong>. La próxima vez que abras la app,
-      los dropdowns del formulario se actualizan automáticamente desde Excel.
+  </div>
+
+  <!-- VIEW: HISTORIAL -->
+  <div id="view-hist" class="view">
+    <div class="wrap">
+      <div class="sb">
+        <span style="color:var(--muted)">🔍</span>
+        <input id="si" type="text" placeholder="Buscar..." oninput="renderHist()"/>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <span class="stitle" id="hcnt">0 registros</span>
+      </div>
+      <div id="hl" class="hl"></div>
     </div>
-    <div style="overflow-x:auto">
-      <table class="ctable">
-        <thead><tr><th>GASTO / CATEGORÍA</th><th>FAMILIA</th><th></th></tr></thead>
+  </div>
+
+  <!-- VIEW: RESUMEN -->
+  <div id="view-res" class="view">
+    <div class="wrap">
+      <div class="kgrid">
+        <div class="kcard">
+          <div class="klbl">Ingresos</div>
+          <div class="kval in" id="ki">$0</div>
+        </div>
+        <div class="kcard">
+          <div class="klbl">Egresos</div>
+          <div class="kval eg" id="ke">$0</div>
+        </div>
+      </div>
+      <div class="kgrid">
+        <div class="kcard">
+          <div class="klbl">Balance</div>
+          <div class="kval ba" id="kb">+$0</div>
+        </div>
+        <div class="kcard">
+          <div class="klbl">Total Registros</div>
+          <div class="kval ct" id="kc">0</div>
+        </div>
+      </div>
+      <div style="margin-top:20px">
+        <div class="stitle">Top 10 Categorías (Egresos)</div>
+        <div id="cl"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIEW: MANTENEDOR -->
+  <div id="view-maint" class="view">
+    <div class="wrap">
+      <div class="mhdr">
+        <span class="mtitle">Gestionar Categorías</span>
+      </div>
+      <div class="add-form">
+        <div class="field">
+          <label>Nueva Categoría</label>
+          <input id="ng" type="text" placeholder="ej: Luz, Agua, Internet"/>
+        </div>
+        <div class="field">
+          <label>Familia Asociada</label>
+          <select id="nf">
+            <option value="">-- Seleccionar --</option>
+            <option value="Ingreso">Ingreso</option>
+            <option value="Gastos Comunes">Gastos Comunes</option>
+            <option value="Alimentación">Alimentación</option>
+            <option value="Transporte">Transporte</option>
+            <option value="Salud">Salud</option>
+            <option value="Educación">Educación</option>
+            <option value="Entretenimiento">Entretenimiento</option>
+            <option value="Servicios">Servicios</option>
+            <option value="Otros">Otros</option>
+          </select>
+        </div>
+        <button id="badd" class="btn-submit" onclick="addCat()">Agregar y guardar en Excel</button>
+      </div>
+      <table class="mtable">
+        <thead style="border-bottom:2px solid var(--border)">
+          <tr style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase">
+            <td>Categoría</td><td>Familia</td><td></td>
+          </tr>
+        </thead>
         <tbody id="ctbody"></tbody>
       </table>
     </div>
-    <div class="add-form">
-      <h4>➕ Agregar nueva categoría</h4>
-      <div class="arow">
-        <input class="ai" id="ng" placeholder="Nombre del gasto" type="text"/>
-        <select class="as" id="nf"><option value="">— Familia —</option></select>
-      </div>
-      <button class="btn-add" id="badd" onclick="addCat()">Agregar y guardar en Excel</button>
-    </div>
-  </div></div>
+  </div>
+</div>
 
-</div><!-- /app-shell -->
-<div class="safe"></div>
 <div class="toast" id="toast"></div>
 
 <script>
 // ════════════════════════════════════════
 // CONFIGURACIÓN
 // ════════════════════════════════════════
-const CLIENT_ID    = '295e1bdd-225b-49d3-a0d2-aa08bdf211e3';
-const FILE_NAME    = 'Control_de_Gastos_2026.xlsx';
-const FOLDER_PATH  = '/Gestion Financiera';
+const APP_ID = '295e1bdd-225b-49d3-a0d2-aa08bdf211e3';
+const REDIRECT_URI = 'https://gprh-creador.github.io/gastos-app/'; // ✅ CON TRAILING SLASH
+const SHEET_REGISTROS = 'Registros';
 const SHEET_LISTAS = 'Listas';
-const SHEET_DATA   = 'Registros';
-const SCOPES       = ['User.Read', 'Files.ReadWrite'];
-const LOCAL_KEY    = 'gf_records_v3';
+const LOCAL_KEY = 'gf_local_records';
 
-let msalInstance = null;
-
-function initMsal() {
-  const msalCfg = {
-    auth:{
-      clientId: CLIENT_ID,
-      authority: 'https://login.microsoftonline.com/common',
-      redirectUri: location.href.split('?')[0].split('#')[0]
-    },
-    cache:{ cacheLocation:'localStorage', storeAuthStateInCookie:true }
-  };
-  msalInstance = new window.msal.PublicClientApplication(msalCfg);
-}
-
-let token      = null;
-let fileId     = null;
-let gastosMap  = {};        // { gasto: familia }
-let familias   = [];
-let localRecs  = [];
-let currentUser= null;
-let tipo       = 'Egreso';
+let pca, accessToken, fileId;
+let localRecs = [];
+let gastosMap = {};
+let currentTipo = 'Egreso';
 
 // ════════════════════════════════════════
-// AUTH
+// INICIALIZACIÓN & AUTENTICACIÓN
 // ════════════════════════════════════════
-async function signIn() {
+async function init() {
   try {
-    const r = await msalInstance.loginPopup({ scopes: SCOPES });
-    msalInstance.setActiveAccount(r.account);
-    await boot(r.account);
-  } catch(e){ toast('Error al iniciar sesión: '+e.message,'er'); }
-}
-
-async function boot(acct) {
-  currentUser = acct;
-  document.getElementById('login-screen').style.display = 'none';
-  document.getElementById('app-shell').style.display    = 'block';
-  document.getElementById('uname').textContent = (acct.name||acct.username).split(' ')[0];
-  sync('ld','Conectando…');
-  token = await getToken();
-  await resolveFile();
-  await loadListas();
-  loadLocal();
-  renderHist(); renderRes();
-  document.getElementById('f-f').value = new Date().toISOString().split('T')[0];
-}
-
-async function getToken() {
-  const req = { scopes: SCOPES, account: msalInstance.getActiveAccount() };
-  try { return (await msalInstance.acquireTokenSilent(req)).accessToken; }
-  catch { return (await msalInstance.acquireTokenPopup(req)).accessToken; }
-}
-
-function signOut(){ msalInstance.logoutPopup(); location.reload(); }
-
-window.onload = async () => {
-  await loadMSAL();
-  initMsal();
-  await msalInstance.handleRedirectPromise().catch(()=>{});
-  const accts = msalInstance.getAllAccounts();
-  if (accts.length) { msalInstance.setActiveAccount(accts[0]); await boot(accts[0]); }
-};
-
-// ════════════════════════════════════════
-// GRAPH API
-// ════════════════════════════════════════
-async function gfetch(url, opts={}) {
-  if (!token) token = await getToken();
-  const r = await fetch('https://graph.microsoft.com/v1.0'+url, {
-    ...opts,
-    headers:{ Authorization:'Bearer '+token, 'Content-Type':'application/json', ...(opts.headers||{}) }
-  });
-  if (r.status===401){ token=await getToken(); return gfetch(url,opts); }
-  if (!r.ok){ const e=await r.json().catch(()=>{}); throw new Error(e?.error?.message||'HTTP '+r.status); }
-  if (r.status===204) return null;
-  return r.json();
-}
-
-async function resolveFile() {
-  try {
-    const enc = encodeURIComponent(FOLDER_PATH+'/'+FILE_NAME);
-    const d   = await gfetch('/me/drive/root:'+enc);
-    fileId = d.id; sync('ok','Excel conectado');
-  } catch {
-    try {
-      const d = await gfetch(`/me/drive/root/search(q='${encodeURIComponent(FILE_NAME)}')?$top=10`);
-      const f = d.value?.find(x => x.name===FILE_NAME);
-      if (f){ fileId=f.id; sync('ok','Excel conectado'); }
-      else throw new Error('No encontrado');
-    } catch(e){ sync('err','Sin Excel'); toast('No se encontró '+FILE_NAME,'er'); }
-  }
-}
-
-async function xlGet(sheet, range) {
-  return gfetch(`/me/drive/items/${fileId}/workbook/worksheets('${enc(sheet)}')/range(address='${range}')`);
-}
-
-async function xlAppend(sheet, values) {
-  // Use Excel Table API for reliable append (avoids usedRange ghost rows issue)
-  // Table name for Registros sheet is TRegistros
-  try {
-    return await gfetch(
-      `/me/drive/items/${fileId}/workbook/tables/TRegistros/rows`,
-      { method:'POST', body:JSON.stringify({ values:[values] }) }
-    );
-  } catch(e) {
-    // Fallback: find last real data row by scanning column A
-    const data = await gfetch(
-      `/me/drive/items/${fileId}/workbook/worksheets('${enc(sheet)}')/range(address='A4:A500')`
-    );
-    const rows = data.values || [];
-    let lastRow = 3; // header is row 3
-    for (let i = 0; i < rows.length; i++) {
-      if (rows[i][0] !== null && rows[i][0] !== '') lastRow = 4 + i;
-    }
-    const nextRow = lastRow + 1;
-    const col = String.fromCharCode(64 + values.length);
-    return gfetch(
-      `/me/drive/items/${fileId}/workbook/worksheets('${enc(sheet)}')/range(address='A${nextRow}:${col}${nextRow}')`,
-      { method:'PATCH', body:JSON.stringify({ values:[values] }) }
-    );
-  }
-}
-
-async function xlWrite(sheet, range, values) {
-  return gfetch(
-    `/me/drive/items/${fileId}/workbook/worksheets('${enc(sheet)}')/range(address='${range}')`,
-    { method:'PATCH', body:JSON.stringify({ values }) }
-  );
-}
-
-function enc(s){ return encodeURIComponent(s); }
-
-// ════════════════════════════════════════
-// LISTAS — leer desde Excel
-// ════════════════════════════════════════
-async function loadListas() {
-  if (!fileId) return;
-  const btn = document.getElementById('bref');
-  btn.disabled=true; btn.textContent='⏳…';
-  sync('ld','Leyendo Excel…');
-  try {
-    // Cols G:H = GastoKey, FamiliaVal (row 1 = header)
-    const d  = await xlGet(SHEET_LISTAS,'G1:H300');
-    const rows = d.values || [];
-    gastosMap = {};
-    for (let i=1;i<rows.length;i++){
-      const g=(rows[i][0]||'').toString().trim();
-      const f=(rows[i][1]||'').toString().trim();
-      if(g) gastosMap[g]=f;
-    }
-    // Familias desde col B
-    const fd = await xlGet(SHEET_LISTAS,'B1:B100');
-    familias = (fd.values||[]).slice(1).map(r=>(r[0]||'').toString().trim()).filter(Boolean);
-    if (!familias.length) familias=[...new Set(Object.values(gastosMap))].sort();
-
-    fillGastoSel(); fillFamSel(); renderCat();
-    sync('ok','Excel conectado');
-    toast('✓ Categorías actualizadas');
-  } catch(e){
-    sync('err','Error lectura');
-    toast('Error leyendo Listas: '+e.message,'er');
-    if (!Object.keys(gastosMap).length) fallback();
-  } finally { btn.disabled=false; btn.textContent='🔄 Actualizar'; }
-}
-
-function fallback(){
-  gastosMap={"Anticipo":"Ingreso","Bono Produccion":"Ingreso","Reembolsos Isapre":"Ingreso","Reembolsos Seguro Dental":"Ingreso","Venta de Activos Fijos":"Ingreso","Pago deudores":"Ingreso","Ganancia Casino":"Ingreso","Remuneracion":"Ingreso","Obras Construccion":"Obras Construccion","Materiales Construccion":"Obras Construccion","Implementos Casa":"Activos Fijos","Articulos de Hogar":"Activos Fijos","Agua":"Gastos Comunes","Luz":"Gastos Comunes","Gas Medidor":"Gastos Comunes","Gas Licuado":"Gastos Comunes","Dividendo":"Gastos Comunes","Calefaccion":"Gastos Comunes","Ahorro Voluntario Cta 2":"Ahorro","FFMM Santander":"Ahorro","SoyFocus 4 - Educacion":"Ahorro","Apuestas varias":"Diversion","Pesca":"Diversion","Salidas Familia":"Diversion","Salidas Gabo":"Diversion","Salidas Gabo&Kathy":"Diversion","Comida a Domicilio":"Diversion","Carnes Varias":"Alimentos","Despensa Varias":"Alimentos","Frutas y Verduras":"Alimentos","Desayuno GR":"Alimentos","Negocios de Barrio":"Alimentos","Netflix":"Apps-Entretencion","Spotify":"Apps-Entretencion","Youtube":"Apps-Entretencion","Aseo Hogar":"Articulos de Aseo","Aseo Personal":"Articulos de Aseo","Compras varias GR":"Compras Internet","Compras varias VR":"Compras Internet","Credito Santander":"Creditos","MS Bancoestado":"Tarjetas Credito","MS Falabella":"Tarjetas Credito","MS Itau":"Tarjetas Credito","MS Tenpo":"Tarjetas Credito","MS Ripley":"Tarjetas Credito","Combustible":"Transporte","Estacionamiento":"Transporte","Locomocion Colectiva":"Transporte","Documentos - Auto":"Transporte","Mantencion KM":"Transporte","Seguro Auto Mensual":"Transporte","Peajes":"Transporte","Medicina General":"Salud","Medicina Dental":"Salud","Remedios Varios":"Salud","Utiles Escolares":"Educacion","Vestuario Escolar":"Educacion","Inet Casa":"Telecomunicaciones","Donaciones Varias":"Sociedad y Comunidad","Regalos Varios":"Sociedad y Comunidad","Pago Pension":"Pension","Mantencion Casa":"Mantencion Hogar","Ropa":"Vestuario y Calzado","Calzado":"Vestuario y Calzado","Mesada":"Mesada","Gastos Dania":"Gastos Dania"};
-  familias=[...new Set(Object.values(gastosMap))].sort();
-  fillGastoSel(); fillFamSel(); renderCat();
-}
-
-function fillGastoSel(){
-  const s=document.getElementById('f-g');
-  s.innerHTML='<option value="">— Selecciona —</option>';
-  Object.keys(gastosMap).sort().forEach(g=>{
-    const o=document.createElement('option'); o.value=o.textContent=g; s.appendChild(o);
-  });
-}
-function fillFamSel(){
-  const s=document.getElementById('nf');
-  const cur=s.value;
-  s.innerHTML='<option value="">— Familia —</option>';
-  familias.sort().forEach(f=>{ const o=document.createElement('option'); o.value=o.textContent=f; if(f===cur)o.selected=true; s.appendChild(o); });
-}
-
-// ════════════════════════════════════════
-// TIPO TOGGLE
-// ════════════════════════════════════════
-function setTipo(t){
-  tipo=t;
-  document.getElementById('be').className='tipo-btn'+(t==='Egreso' ?' ae':'');
-  document.getElementById('bi').className='tipo-btn'+(t==='Ingreso'?' ai':'');
-}
-function autoFam(){
-  const g=document.getElementById('f-g').value;
-  const chip=document.getElementById('fchip');
-  if(g&&gastosMap[g]){
-    document.getElementById('ftxt').textContent=gastosMap[g];
-    chip.classList.remove('hidden');
-    setTipo(gastosMap[g]==='Ingreso'?'Ingreso':'Egreso');
-  } else chip.classList.add('hidden');
-}
-// ════════════════════════════════════════
-// FUNCION GUARDAR
-// ════════════════════════════════════════
-
-async function guardar() {
-  // 1. CAPTURA DE DATOS - Usando los IDs EXACTOS de tu RevIndex.html
-  // Si uno de estos IDs no existe, el error de la línea 525 aparece.
-  const elVal = document.getElementById('fVal');
-  const elFec = document.getElementById('fDate');
-  const elDes = document.getElementById('fDesc');
-  const elGst = document.getElementById('fGasto');
-  const elMed = document.getElementById('fMedio');
-  const elCta = document.getElementById('fCta');
-  const elTra = document.getElementById('fTrans');
-
-  // Verificación de seguridad: si alguno es null, nos detenemos antes del error
-  if (!elVal || !elFec || !elDes || !elGst) {
-    console.error("Error crítico: No se encuentran los campos fVal, fDate, fDesc o fGasto en tu HTML.");
-    toast("Error interno de IDs", "er");
-    return;
-  }
-
-  const v = parseFloat(elVal.value) || 0;
-  const f = elFec.value;
-  const d = elDes.value.trim();
-  const g = elGst.value;
-  const m = elMed ? elMed.value : 'Transferencia';
-  const c = elCta ? elCta.value : 'Cta_Cte_BancoEstado';
-  const t = elTra ? elTra.value.trim() : '';
-
-  if (!v || !f || !d || !g) {
-    toast('Completa los campos obligatorios', 'er');
-    return;
-  }
-
-  const btn = document.getElementById('btnSave');
-  const originalText = btn.innerHTML;
-  btn.disabled = true;
-  btn.innerHTML = '<span>Guardando...</span>';
-
-  // 2. CÁLCULO DE TIEMPO (Columnas A, B, D, E)
-  const dt = new Date(f + 'T12:00:00');
-  const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-  const DIAS = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
-  
-  const fam = gastosMap[g] || 'Otros';
-  const tipoMov = (fam === 'Ingreso') ? 'Ingreso' : 'Egreso';
-
-  // 3. LA FILA DE 14 COLUMNAS (Mapeo exacto para Excel 2026)
-  const row = [
-    MESES[dt.getMonth()], // A: Mes
-    dt.getFullYear(),     // B: Año
-    f,                    // C: Fecha Pago
-    DIAS[dt.getDay()],    // D: Día
-    getWk(dt),            // E: Semana
-    d,                    // F: Detalle / Descripción
-    t,                    // G: N° Transacción
-    g,                    // H: Gasto *
-    fam,                  // I: Familia
-    tipoMov,              // J: Tipo
-    v,                    // K: $ Valor
-    m,                    // L: Medio Pago
-    c,                    // M: Cuenta
-    ""                    // N: Notas
-  ];
-
-  try {
-    sync('ld', 'Escribiendo en Excel...');
-    const tok = await getToken();
+    await loadMSAL();
     
-    // Asegúrate que SHEET_DATA sea 'Registros' y la tabla 'TRegistros'
-    const url = `https://graph.microsoft.com/v1.0/me/drive/items/${fileId}/workbook/worksheets('${SHEET_DATA}')/tables('TRegistros')/rows`;
-    
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { 'Authorization': 'Bearer ' + tok, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ values: [row] })
-    });
+    const msalConfig = {
+      auth: {
+        clientId: APP_ID,
+        authority: 'https://login.microsoftonline.com/common',
+        redirectUri: REDIRECT_URI,
+        postLogoutRedirectUri: REDIRECT_URI,
+        navigateToLoginRequestUrl: false
+      },
+      cache: {
+        cacheLocation: 'localStorage',
+        storeAuthStateInCookie: false
+      },
+      system: {
+        allowNativeBroker: false,
+        loggerOptions: {
+          loggerCallback: (level, message, containsPII) => {
+            if (level === MSALBrowserLogLevel.ERROR && message) console.error('MSAL:', message);
+          }
+        }
+      }
+    };
 
-    if (res.ok) {
-      toast('✓ Guardado correctamente');
-      // Limpiar el formulario
-      elVal.value = '';
-      elDes.value = '';
-      if(elTra) elTra.value = '';
-      sync('ok', 'Excel conectado');
-    } else {
-      const errorData = await res.json();
-      console.error('Error de Microsoft:', errorData);
-      throw new Error();
+    pca = new window.msal.PublicClientApplication(msalConfig);
+    await pca.initialize();
+
+    const account = pca.getAllAccounts()[0];
+    if (account) {
+      pca.setActiveAccount(account);
+      await loginSuccess();
     }
   } catch (e) {
-    sync('err', 'Error al guardar');
-    toast('⚠️ Error de conexión con Excel', 'er');
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = originalText;
+    console.error('Init error:', e);
+    showAuthError('Error al inicializar. Recarga la página.');
   }
 }
+
+async function login() {
+  try {
+    document.getElementById('btn-login').disabled = true;
+    const response = await pca.loginPopup({
+      scopes: ['Files.ReadWrite.All'],
+      prompt: 'select_account'
+    });
+    pca.setActiveAccount(response.account);
+    await loginSuccess();
+  } catch (e) {
+    document.getElementById('btn-login').disabled = false;
+    console.error('Login error:', e);
+    showAuthError(`Error: ${e.errorCode || e.message}`);
+  }
+}
+
+async function loginSuccess() {
+  try {
+    accessToken = await getAccessToken();
+    fileId = await findFileId();
+    
+    if (!fileId) {
+      showAuthError('No se encontró el archivo Excel en OneDrive.');
+      return;
+    }
+
+    await loadListas();
+    fillGastoSel();
+    loadLocal();
+    renderHist();
+    renderRes();
+    renderCat();
+
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app-shell').style.display = 'block';
+    
+    const account = pca.getActiveAccount();
+    document.getElementById('user-info').textContent = account?.name || 'Usuario';
+    
+    setDefaultDate();
+    sync('ok', 'Conectado');
+  } catch (e) {
+    console.error('Login success error:', e);
+    showAuthError('Error al cargar datos: ' + e.message);
+  }
+}
+
+async function logout() {
+  await pca.logoutPopup();
+  location.reload();
+}
+
+function showAuthError(msg) {
+  const container = document.getElementById('auth-error-container');
+  container.innerHTML = `<div class="auth-error">⚠️ ${msg}</div>`;
+}
+
+// ════════════════════════════════════════
+// AUTENTICACIÓN - Token Refresh
+// ════════════════════════════════════════
+async function getAccessToken() {
+  try {
+    const response = await pca.acquireTokenSilent({
+      scopes: ['Files.ReadWrite.All'],
+      account: pca.getActiveAccount()
+    });
+    return response.accessToken;
+  } catch (error) {
+    console.log('Silent token failed, trying popup...');
+    const response = await pca.acquireTokenPopup({
+      scopes: ['Files.ReadWrite.All']
+    });
+    return response.accessToken;
+  }
+}
+
+async function ensureToken() {
+  if (!accessToken) {
+    accessToken = await getAccessToken();
+  }
+  return accessToken;
+}
+
+// ════════════════════════════════════════
+// MICROSOFT GRAPH API
+// ════════════════════════════════════════
+async function findFileId() {
+  const token = await ensureToken();
+  const url = 'https://graph.microsoft.com/v1.0/me/drive/root/children?$filter=name eq \'Control_de_Gastos_2026.xlsx\'';
+  
+  const response = await fetch(url, {
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+  
+  if (!response.ok) throw new Error(`Graph error: ${response.status}`);
+  const data = await response.json();
+  
+  if (data.value.length === 0) throw new Error('Archivo no encontrado en OneDrive');
+  return data.value[0].id;
+}
+
+async function xlRead(sheet, range, maxRetries = 3) {
+  let lastError;
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const token = await ensureToken();
+      const url = `https://graph.microsoft.com/v1.0/me/drive/items/${fileId}/workbook/worksheets('${sheet}')/range(address='${range}')`;
+      
+      const response = await fetch(url, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (response.status === 401) {
+        accessToken = null;
+        continue;
+      }
+
+      if (!response.ok) {
+        throw new Error(`[${response.status}] Error al leer Excel`);
+      }
+
+      const data = await response.json();
+      return data.values || [];
+    } catch (error) {
+      lastError = error;
+      if (attempt < maxRetries) {
+        await new Promise(r => setTimeout(r, 1000 * attempt));
+      }
+    }
+  }
+  
+  throw lastError;
+}
+
+async function xlWrite(sheet, range, values, maxRetries = 3) {
+  let lastError;
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const token = await ensureToken();
+      const url = `https://graph.microsoft.com/v1.0/me/drive/items/${fileId}/workbook/worksheets('${sheet}')/range(address='${range}')`;
+      
+      const response = await fetch(url, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ values })
+      });
+
+      if (response.status === 401) {
+        accessToken = null;
+        continue;
+      }
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`[${response.status}] ${errorData.error?.message || 'Error desconocido'}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      lastError = error;
+      if (attempt < maxRetries) {
+        await new Promise(r => setTimeout(r, 1000 * attempt));
+      }
+    }
+  }
+  
+  throw lastError;
+}
+
+// ════════════════════════════════════════
+// LISTAS (CATEGORÍAS)
+// ════════════════════════════════════════
+async function loadListas() {
+  try {
+    const data = await xlRead(SHEET_LISTAS, 'G1:H162');
+    gastosMap = {};
+    
+    for (let i = 1; i < data.length; i++) {
+      const [key, val] = data[i];
+      if (key && val) {
+        gastosMap[key] = val;
+      }
+    }
+  } catch (e) {
+    console.error('Error al cargar listas:', e);
+    toast('⚠️ Error al cargar categorías', 'er');
+  }
+}
+
+function fillGastoSel() {
+  const sel = document.getElementById('gasto');
+  const sorted = Object.keys(gastosMap).sort();
+  sel.innerHTML = '<option value="">-- Seleccionar --</option>' + 
+    sorted.map(g => `<option value="${x(g)}">${x(g)}</option>`).join('');
+}
+
+function setTipo(t, btn) {
+  currentTipo = t;
+  document.getElementById('btn-egr').classList.toggle('ae', t === 'Egreso');
+  document.getElementById('btn-ing').classList.toggle('ai', t === 'Ingreso');
+  const color = t === 'Ingreso' ? 'var(--green)' : 'var(--red)';
+  document.getElementById('btn-egr').style.opacity = t === 'Ingreso' ? '0.5' : '1';
+  document.getElementById('btn-ing').style.opacity = t === 'Egreso' ? '0.5' : '1';
+}
+
+function setDefaultDate() {
+  const hoy = new Date();
+  const yyyy = hoy.getFullYear();
+  const mm = String(hoy.getMonth() + 1).padStart(2, '0');
+  const dd = String(hoy.getDate()).padStart(2, '0');
+  document.getElementById('fecha').value = `${yyyy}-${mm}-${dd}`;
+}
+
+// ════════════════════════════════════════
+// CONSTRUCCIÓN DE ROW EXCEL (14 columnas)
+// ════════════════════════════════════════
+function buildExcelRow(formData) {
+  const fecha = new Date(formData.fechaPago);
+  
+  // Mes (nombre)
+  const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
+                 'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const mes = meses[fecha.getMonth()];
+  
+  // Año
+  const ano = fecha.getFullYear();
+  
+  // Día (nombre)
+  const dias = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  const dia = dias[fecha.getDay()];
+  
+  // Semana (ISO)
+  const semana = getWk(fecha);
+  
+  // Array con 14 elementos (A:N)
+  return [
+    mes,                        // A: Mes
+    ano,                        // B: Año
+    fecha,                      // C: Fecha Pago (DateTime)
+    dia,                        // D: Día
+    semana,                     // E: Semana
+    formData.detalle,           // F: Detalle
+    '',                         // G: Nº Transacción (vacío)
+    formData.gasto,             // H: Gasto
+    formData.familia,           // I: Familia
+    formData.tipo,              // J: Tipo
+    formData.valor,             // K: $ Valor
+    formData.medioPago,         // L: Medio Pago
+    formData.cuenta || '',      // M: Cuenta
+    formData.notas || ''        // N: Notas
+  ];
+}
+
+// ════════════════════════════════════════
+// GUARDAR GASTO
+// ════════════════════════════════════════
+async function savGasto() {
+  const btn = document.getElementById('btn-save');
+  const originalText = btn.textContent;
+  
+  try {
+    // Validar
+    const detalle = document.getElementById('detalle').value.trim();
+    const gasto = document.getElementById('gasto').value;
+    const familia = document.getElementById('familia').value;
+    const valor = parseFloat(document.getElementById('amt').value);
+    const fecha = document.getElementById('fecha').value;
+    
+    if (!detalle) { toast('⚠️ Ingresa una descripción', 'er'); return; }
+    if (!gasto) { toast('⚠️ Selecciona una categoría', 'er'); return; }
+    if (!familia) { toast('⚠️ Selecciona una familia', 'er'); return; }
+    if (!valor || valor <= 0) { toast('⚠️ Ingresa un monto válido', 'er'); return; }
+    if (!fecha) { toast('⚠️ Selecciona una fecha', 'er'); return; }
+
+    btn.disabled = true;
+    btn.textContent = '⏳ Sincronizando...';
+    sync('ld', 'Guardando...');
+
+    // Guardar localmente
+    const formData = {
+      tipo: currentTipo,
+      fechaPago: fecha,
+      detalle: detalle,
+      gasto: gasto,
+      familia: familia,
+      valor: valor,
+      medioPago: document.getElementById('medio-pago').value,
+      cuenta: document.getElementById('cuenta').value,
+      notas: document.getElementById('notas').value,
+      usuario: pca.getActiveAccount()?.name || 'Usuario'
+    };
+
+    localRecs.push({ ...formData, sync: false });
+    saveLocal();
+
+    // Guardar en Excel
+    const excelRow = buildExcelRow(formData);
+    
+    // Obtener último row utilizado
+    const lastRowData = await xlRead(SHEET_REGISTROS, 'A1:A1010');
+    let lastRow = 3;
+    for (let i = lastRowData.length - 1; i >= 0; i--) {
+      if (lastRowData[i]?.[0]) {
+        lastRow = i + 1; // +1 porque xlRead empieza en A1 (index 0)
+        break;
+      }
+    }
+    
+    // Escribir en Excel: A(lastRow+1):N(lastRow+1)
+    await xlWrite(SHEET_REGISTROS, `A${lastRow+1}:N${lastRow+1}`, [excelRow]);
+
+    // Marcar como sincronizado
+    const rec = localRecs[localRecs.length - 1];
+    rec.sync = true;
+    saveLocal();
+
+    // Limpiar formulario
+    document.getElementById('detalle').value = '';
+    document.getElementById('gasto').value = '';
+    document.getElementById('familia').value = '';
+    document.getElementById('amt').value = '';
+    document.getElementById('cuenta').value = '';
+    document.getElementById('notas').value = '';
+    setDefaultDate();
+
+    renderHist();
+    renderRes();
+    toast('✓ Gasto guardado en Excel', 'ok');
+    sync('ok', 'Sincronizado');
+  } catch (e) {
+    console.error('Error al guardar:', e);
+    toast('⚠️ Error: ' + e.message, 'er');
+    sync('err', 'Error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = originalText;
+  }
+}
+
 // ════════════════════════════════════════
 // HISTORIAL
 // ════════════════════════════════════════
-function loadLocal(){ try{localRecs=JSON.parse(localStorage.getItem(LOCAL_KEY)||'[]');}catch{localRecs=[];} }
-function saveLocal(){ localStorage.setItem(LOCAL_KEY,JSON.stringify(localRecs)); }
+function loadLocal() {
+  try {
+    localRecs = JSON.parse(localStorage.getItem(LOCAL_KEY) || '[]');
+  } catch {
+    localRecs = [];
+  }
+}
 
-function renderHist(){
-  const q=(document.getElementById('si')?.value||'').toLowerCase();
-  const rows=[...localRecs].filter(r=>!q||r.detalle.toLowerCase().includes(q)||(r.gasto||'').toLowerCase().includes(q)).reverse();
-  document.getElementById('hcnt').textContent=rows.length+' en sesión';
-  const el=document.getElementById('hl');
-  if(!rows.length){el.innerHTML=`<div class="empty"><div class="em">📭</div><p>${q?'Sin resultados':'Los registros de esta sesión aparecen aquí'}</p></div>`;return;}
-  el.innerHTML=rows.map(r=>{
-    const c=r.tipo==='Ingreso'?'in':'eg';
-    const badge=r.sync?'<span class="hbadge">✓ Excel</span>':'<span class="hbadge pen">⏳ Local</span>';
-    return`<div class="hi">
-      <div class="hico ${c}">${r.tipo==='Ingreso'?'💵':'💸'}</div>
+function saveLocal() {
+  localStorage.setItem(LOCAL_KEY, JSON.stringify(localRecs));
+}
+
+function renderHist() {
+  const q = (document.getElementById('si')?.value || '').toLowerCase();
+  const rows = [...localRecs].filter(r => 
+    !q || r.detalle.toLowerCase().includes(q) || (r.gasto || '').toLowerCase().includes(q)
+  ).reverse();
+  
+  document.getElementById('hcnt').textContent = rows.length + ' en sesión';
+  
+  const el = document.getElementById('hl');
+  if (!rows.length) {
+    el.innerHTML = `<div class="empty"><div class="em">📭</div><p>${q ? 'Sin resultados' : 'Los registros de esta sesión aparecen aquí'}</p></div>`;
+    return;
+  }
+
+  el.innerHTML = rows.map(r => {
+    const c = r.tipo === 'Ingreso' ? 'in' : 'eg';
+    const badge = r.sync ? '<span class="hbadge">✓ Excel</span>' : '<span class="hbadge pen">⏳ Local</span>';
+    return `<div class="hi">
+      <div class="hico ${c}">${r.tipo === 'Ingreso' ? '💵' : '💸'}</div>
       <div class="hinfo">
         <div class="hdet">${x(r.detalle)}</div>
         <div class="hmeta">${r.fechaPago} · ${x(r.usuario)}</div>
-        <div class="hchips"><span class="chip cf">${x(r.familia||r.gasto)}</span><span class="chip cm">${x(r.medioPago)}</span></div>
+        <div class="hchips"><span class="chip cf">${x(r.familia || r.gasto)}</span><span class="chip cm">${x(r.medioPago)}</span></div>
       </div>
       <div class="hright">
-        <div class="hamt ${c}">${r.tipo==='Ingreso'?'+':'-'}${fmt(r.valor)}</div>
+        <div class="hamt ${c}">${r.tipo === 'Ingreso' ? '+' : '-'}${fmt(r.valor)}</div>
         ${badge}
       </div>
     </div>`;
@@ -649,91 +804,123 @@ function renderHist(){
 // ════════════════════════════════════════
 // RESUMEN
 // ════════════════════════════════════════
-function renderRes(){
-  const ing=localRecs.filter(r=>r.tipo==='Ingreso').reduce((s,r)=>s+r.valor,0);
-  const egr=localRecs.filter(r=>r.tipo==='Egreso').reduce((s,r)=>s+r.valor,0);
-  const bal=ing-egr;
-  document.getElementById('ki').textContent='$'+fmt(ing);
-  document.getElementById('ke').textContent='$'+fmt(egr);
-  document.getElementById('kb').textContent=(bal>=0?'+':'')+fmt(bal);
-  document.getElementById('kc').textContent=localRecs.length;
-  const byF={};
-  localRecs.filter(r=>r.tipo==='Egreso').forEach(r=>{byF[r.familia||r.gasto]=(byF[r.familia||r.gasto]||0)+r.valor;});
-  const sorted=Object.entries(byF).sort((a,b)=>b[1]-a[1]).slice(0,10);
-  const max=sorted[0]?.[1]||1;
-  document.getElementById('cl').innerHTML=sorted.length?sorted.map(([f,v])=>`
+function renderRes() {
+  const ing = localRecs.filter(r => r.tipo === 'Ingreso').reduce((s, r) => s + r.valor, 0);
+  const egr = localRecs.filter(r => r.tipo === 'Egreso').reduce((s, r) => s + r.valor, 0);
+  const bal = ing - egr;
+  
+  document.getElementById('ki').textContent = '$' + fmt(ing);
+  document.getElementById('ke').textContent = '$' + fmt(egr);
+  document.getElementById('kb').textContent = (bal >= 0 ? '+' : '') + '$' + fmt(Math.abs(bal));
+  document.getElementById('kc').textContent = localRecs.length;
+  
+  const byF = {};
+  localRecs.filter(r => r.tipo === 'Egreso').forEach(r => {
+    byF[r.familia || r.gasto] = (byF[r.familia || r.gasto] || 0) + r.valor;
+  });
+  
+  const sorted = Object.entries(byF).sort((a, b) => b[1] - a[1]).slice(0, 10);
+  const max = sorted[0]?.[1] || 1;
+  
+  document.getElementById('cl').innerHTML = sorted.length ? sorted.map(([f, v]) => `
     <div class="crow"><div class="cname">${x(f)}</div>
-    <div class="cbar-w"><div class="cbar" style="width:${Math.round(v/max*100)}%"></div></div>
+    <div class="cbar-w"><div class="cbar" style="width:${Math.round(v / max * 100)}%"></div></div>
     <div class="camt">$${fmt(v)}</div></div>`).join('')
-    :'<p style="color:var(--muted);font-size:13px;padding:10px 0">Sin egresos en esta sesión</p>';
+    : '<p style="color:var(--muted);font-size:13px;padding:10px 0">Sin egresos en esta sesión</p>';
 }
 
 // ════════════════════════════════════════
-// MANTENEDOR
+// MANTENEDOR CATEGORÍAS
 // ════════════════════════════════════════
-function renderCat(){
-  const sorted=Object.entries(gastosMap).sort((a,b)=>a[0].localeCompare(b[0]));
-  document.getElementById('ctbody').innerHTML=sorted.map(([g,f],i)=>`
+function renderCat() {
+  const sorted = Object.entries(gastosMap).sort((a, b) => a[0].localeCompare(b[0]));
+  document.getElementById('ctbody').innerHTML = sorted.map(([g, f]) => `
     <tr><td>${x(g)}</td><td><span class="td-f">${x(f)}</span></td>
-    <td><button class="btn-dc" onclick="delCat(${i},'${g.replace(/'/g,"\\'")}')">🗑</button></td></tr>`
-  ).join('')||'<tr><td colspan="3" style="color:var(--muted);text-align:center;padding:18px">Sin categorías</td></tr>';
+    <td><button class="btn-dc" onclick="delCat('${g.replace(/'/g, "\\'")}')">🗑</button></td></tr>
+  `).join('') || '<tr><td colspan="3" style="color:var(--muted);text-align:center;padding:18px">Sin categorías</td></tr>';
 }
 
-async function addCat(){
-  const g=document.getElementById('ng').value.trim();
-  const f=document.getElementById('nf').value;
-  if(!g){document.getElementById('ng').style.borderColor='var(--red)';setTimeout(()=>document.getElementById('ng').style.borderColor='',1200);return;}
-  if(!f){document.getElementById('nf').style.borderColor='var(--red)';setTimeout(()=>document.getElementById('nf').style.borderColor='',1200);return;}
-  if(gastosMap[g]){toast('Ya existe esa categoría','er');return;}
-  const btn=document.getElementById('badd');
-  btn.disabled=true; btn.textContent='Guardando…';
-  gastosMap[g]=f;
-  try{ await saveListas(); toast('✓ Categoría guardada en Excel'); }
-  catch(e){ toast('⚠️ '+e.message,'er'); }
-  fillGastoSel(); renderCat();
-  document.getElementById('ng').value=''; document.getElementById('nf').value='';
-  btn.disabled=false; btn.textContent='Agregar y guardar en Excel';
+async function addCat() {
+  const g = document.getElementById('ng').value.trim();
+  const f = document.getElementById('nf').value;
+  
+  if (!g) { document.getElementById('ng').focus(); return; }
+  if (!f) { document.getElementById('nf').focus(); return; }
+  if (gastosMap[g]) { toast('Ya existe esa categoría', 'er'); return; }
+  
+  const btn = document.getElementById('badd');
+  btn.disabled = true;
+  btn.textContent = 'Guardando…';
+  
+  gastosMap[g] = f;
+  
+  try {
+    await saveListas();
+    toast('✓ Categoría guardada en Excel');
+    fillGastoSel();
+    renderCat();
+    document.getElementById('ng').value = '';
+    document.getElementById('nf').value = '';
+  } catch (e) {
+    toast('⚠️ ' + e.message, 'er');
+    delete gastosMap[g];
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Agregar y guardar en Excel';
+  }
 }
 
-async function delCat(i, gasto){
-  if(!confirm(`¿Eliminar "${gasto}"?`)) return;
+async function delCat(gasto) {
+  if (!confirm(`¿Eliminar "${gasto}"?`)) return;
+  
   delete gastosMap[gasto];
-  try{ await saveListas(); toast('✓ Categoría eliminada en Excel'); }
-  catch(e){ toast('⚠️ '+e.message,'er'); }
-  fillGastoSel(); renderCat();
+  
+  try {
+    await saveListas();
+    toast('✓ Categoría eliminada en Excel');
+    fillGastoSel();
+    renderCat();
+  } catch (e) {
+    toast('⚠️ ' + e.message, 'er');
+    loadListas();
+    renderCat();
+  }
 }
 
-async function saveListas(){
-  if(!fileId) throw new Error('Sin conexión a Excel');
-  const entries=Object.entries(gastosMap);
-  const vals=[['GastoKey','FamiliaVal'],...entries.map(([g,f])=>[g,f])];
-  // Clear first
-  const blank=Array(300).fill(['','']);
-  await xlWrite(SHEET_LISTAS,'G1:H300',blank);
-  await xlWrite(SHEET_LISTAS,`G1:H${vals.length}`,vals);
+async function saveListas() {
+  if (!fileId) throw new Error('Sin conexión a Excel');
+  
+  const entries = Object.entries(gastosMap);
+  const vals = [['GastoKey', 'FamiliaVal'], ...entries.map(([g, f]) => [g, f])];
+  
+  // Limpiar primero
+  const blank = Array(300).fill(['', '']);
+  await xlWrite(SHEET_LISTAS, 'G1:H300', blank);
+  
+  // Escribir datos nuevos
+  await xlWrite(SHEET_LISTAS, `G1:H${vals.length}`, vals);
 }
 
 // ════════════════════════════════════════
 // UTILS
 // ════════════════════════════════════════
-function fmt(n){ return Math.round(n).toLocaleString('es-CL'); }
-function x(s){ return(s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function getWk(d){ const s=new Date(d.getFullYear(),0,1); return Math.ceil(((d-s)/86400000+s.getDay()+1)/7); }
-function sync(st,lbl){ document.getElementById('sdot').className='sdot '+st; document.getElementById('slbl').textContent=lbl; }
-function toast(msg,type='ok'){
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.className='toast '+type; t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2800);
-}
-function showView(v,btn){
-  document.querySelectorAll('.view').forEach(e=>e.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(e=>e.classList.remove('active'));
-  document.getElementById('view-'+v).classList.add('active');
+function fmt(n) { return Math.round(n).toLocaleString('es-CL'); }
+function x(s) { return (s || '').toString().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+function getWk(d) { const s = new Date(d.getFullYear(), 0, 1); return Math.ceil(((d - s) / 86400000 + s.getDay() + 1) / 7); }
+function sync(st, lbl) { document.getElementById('sdot').className = 'sdot ' + st; document.getElementById('slbl').textContent = lbl; }
+function toast(msg, type = 'ok') { const t = document.getElementById('toast'); t.textContent = msg; t.className = 'toast ' + type; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2800); }
+function showView(v, btn) {
+  document.querySelectorAll('.view').forEach(e => e.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(e => e.classList.remove('active'));
+  document.getElementById('view-' + v).classList.add('active');
   btn.classList.add('active');
-  if(v==='hist')  renderHist();
-  if(v==='res')   renderRes();
-  if(v==='maint') renderCat();
+  if (v === 'hist') renderHist();
+  if (v === 'res') renderRes();
+  if (v === 'maint') renderCat();
 }
+
+// Iniciar
+init();
 </script>
 </body>
 </html>
