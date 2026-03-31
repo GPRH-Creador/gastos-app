@@ -390,7 +390,7 @@ async function init() {
         allowNativeBroker: false,
         loggerOptions: {
           loggerCallback: (level, message, containsPII) => {
-            if (level === MSALBrowserLogLevel.ERROR && message) console.error('MSAL:', message);
+            if (level === 0 && message) console.error('MSAL:', message);  // level 0 = ERROR
           }
         }
       }
