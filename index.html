@@ -980,4 +980,12 @@ function toast(msg, type = 'ok') { const t = document.getElementById('toast'); t
 function showView(v, btn) {
   document.querySelectorAll('.view').forEach(e => e.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(e => e.classList.remove('active'));
-  document.ge
+  document.getElementById('view-' + v).classList.add('active');
+  btn.classList.add('active');
+  if (v === 'hist') renderHist();
+  if (v === 'res') renderRes();
+  if (v === 'maint') renderCat();
+}
+
+// Inicializar la app
+init();
