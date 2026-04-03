@@ -156,7 +156,7 @@ select{font-size:16px!important}
 <div id="denied-screen">
   <div style="font-size:64px;margin-bottom:20px">🚫</div>
   <h1 class="login-title">Acceso Denegado</h1>
-  <p class="login-sub" style="margin-bottom:30px">Tu cuenta no tiene permiso para acceder a esta aplicación.<br/><span style="font-size:12px;color:var(--muted);margin-top:10px;display:block">Cuenta: <strong id="denied-email">usuario@ejemplo.com</strong></span></p>
+  <p class="login-sub" style="margin-bottom:30px">Tu cuenta no tiene permiso para acceder a esta aplicación.<br/><span style="font-size:12px;color:var(--muted);margin-top:10px;display:block">Cuenta: <strong id="denied-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="f481878195869d9bb4919e919984989bda979b99">[email&#160;protected]</a></strong></span></p>
   <p class="login-note" style="margin-bottom:30px">Contacta al administrador para solicitar acceso.</p>
   <button class="btn-ms" onclick="logout()"><span style="font-size:18px">🚪</span>Cerrar sesión</button>
 </div>
@@ -308,7 +308,7 @@ select{font-size:16px!important}
 
 <div class="toast" id="toast"></div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 const APP_ID = '295e1bdd-225b-49d3-a0d2-aa08bdf211e3';
 const REDIRECT_URI = 'https://gprh-creador.github.io/gastos-app/';
 const SHEET_REGISTROS = 'Registros';
@@ -431,18 +431,12 @@ async function ensureToken() {
 
 async function findFileId() {
   const token = await ensureToken();
-  let folderUrl = 'https://graph.microsoft.com/v1.0/me/drive/root/children?$filter=name eq \'Gestion Financiera\'';
-  let response = await fetch(folderUrl, { headers: { 'Authorization': `Bearer ${token}` } });
-  if (!response.ok) throw new Error(`Error al buscar carpeta: ${response.status}`);
-  let data = await response.json();
-  if (data.value.length === 0) throw new Error('Carpeta "Gestion Financiera" no encontrada en OneDrive');
-  
-  const folderId = data.value[0].id;
-  const fileUrl = `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children?$filter=name eq 'Control_de_Gastos_2026.xlsx'`;
-  response = await fetch(fileUrl, { headers: { 'Authorization': `Bearer ${token}` } });
+  // Buscar el archivo directamente en la raíz de OneDrive
+  const fileUrl = 'https://graph.microsoft.com/v1.0/me/drive/root/children?$filter=name eq \'Control_de_Gastos_2026.xlsx\'';
+  const response = await fetch(fileUrl, { headers: { 'Authorization': `Bearer ${token}` } });
   if (!response.ok) throw new Error(`Error al buscar archivo: ${response.status}`);
-  data = await response.json();
-  if (data.value.length === 0) throw new Error('Archivo "Control_de_Gastos_2026.xlsx" no encontrado en "Gestion Financiera"');
+  const data = await response.json();
+  if (data.value.length === 0) throw new Error('Archivo "Control_de_Gastos_2026.xlsx" no encontrado en OneDrive');
   return data.value[0].id;
 }
 
@@ -713,14 +707,4 @@ function toast(msg, type = 'ok') { const t = document.getElementById('toast'); t
 function showView(v, btn) {
   document.querySelectorAll('.view').forEach(e => e.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(e => e.classList.remove('active'));
-  document.getElementById('view-' + v).classList.add('active');
-  btn.classList.add('active');
-  if (v === 'hist') renderHist();
-  if (v === 'res') renderRes();
-  if (v === 'maint') renderCat();
-}
-
-init();
-</script>
-</body>
-</html>
+  
