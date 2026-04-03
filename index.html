@@ -165,6 +165,25 @@ select{font-size:16px!important}
   </p>
 </div>
 
+<!-- ACCESO DENEGADO SCREEN -->
+<div id="denied-screen" style="display:none;flex-direction:column;align-items:center;justify-content:center;min-height:100dvh;padding:32px 24px;text-align:center">
+  <div style="font-size:64px;margin-bottom:20px">🚫</div>
+  <h1 class="login-title">Acceso Denegado</h1>
+  <p class="login-sub" style="margin-bottom:30px">
+    Tu cuenta no tiene permiso para acceder a esta aplicación.<br/>
+    <span style="font-size:12px;color:var(--muted);margin-top:10px;display:block">
+      Cuenta: <strong id="denied-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="c1b4b2b4a0b3a8ae81a4aba4acb1adaeefa2aeac">[email&#160;protected]</a></strong>
+    </span>
+  </p>
+  <p class="login-note" style="margin-bottom:30px">
+    Contacta al administrador para solicitar acceso.
+  </p>
+  <button class="btn-ms" onclick="logout()">
+    <span style="font-size:18px">🚪</span>
+    Cerrar sesión
+  </button>
+</div>
+
 <!-- APP SHELL -->
 <div id="app-shell">
   <!-- TOPBAR -->
@@ -225,22 +244,6 @@ select{font-size:16px!important}
       </div>
 
       <div class="field">
-        <label>Familia / Grupo *</label>
-        <select id="familia">
-          <option value="">-- Seleccionar --</option>
-          <option value="Ingreso">Ingreso</option>
-          <option value="Gastos Comunes">Gastos Comunes</option>
-          <option value="Alimentación">Alimentación</option>
-          <option value="Transporte">Transporte</option>
-          <option value="Salud">Salud</option>
-          <option value="Educación">Educación</option>
-          <option value="Entretenimiento">Entretenimiento</option>
-          <option value="Servicios">Servicios</option>
-          <option value="Otros">Otros</option>
-        </select>
-      </div>
-
-      <div class="field">
         <label>Medio de Pago</label>
         <select id="medio-pago">
           <option value="Efectivo">Efectivo</option>
@@ -253,8 +256,10 @@ select{font-size:16px!important}
       </div>
 
       <div class="field">
-        <label>Cuenta / Banco (Opcional)</label>
-        <input id="cuenta" type="text" placeholder="ej: Cta_Cte_BancoEstado"/>
+        <label>Cuenta / Banco</label>
+        <select id="cuenta">
+          <option value="">-- Seleccionar --</option>
+        </select>
       </div>
 
       <div class="field">
@@ -352,7 +357,7 @@ select{font-size:16px!important}
 
 <div class="toast" id="toast"></div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ════════════════════════════════════════
 // CONFIGURACIÓN
 // ════════════════════════════════════════
@@ -361,6 +366,12 @@ const REDIRECT_URI = 'https://gprh-creador.github.io/gastos-app/'; // ✅ CON TR
 const SHEET_REGISTROS = 'Registros';
 const SHEET_LISTAS = 'Listas';
 const LOCAL_KEY = 'gf_local_records';
+
+// LISTA BLANCA DE EMAILS PERMITIDOS
+const ALLOWED_EMAILS = [
+  'gabrielrojasrrpp@gmail.com',
+  'katherynecasanova89@gmail.com'
+];
 
 let pca, accessToken, fileId;
 let localRecs = [];
@@ -390,7 +401,7 @@ async function init() {
         allowNativeBroker: false,
         loggerOptions: {
           loggerCallback: (level, message, containsPII) => {
-            if (level === 0 && message) console.error('MSAL:', message);
+            if (level === 0 && message) console.error('MSAL:', message);  // level 0 = ERROR
           }
         }
       }
@@ -428,6 +439,23 @@ async function login() {
 
 async function loginSuccess() {
   try {
+    const account = pca.getActiveAccount();
+    
+    // VALIDACIÓN: Verificar que el email esté en la lista blanca
+    const userEmail = account?.username || account?.name || '';
+    const isAllowed = ALLOWED_EMAILS.some(email => 
+      email.toLowerCase() === userEmail.toLowerCase()
+    );
+    
+    if (!isAllowed) {
+      // Email NO está permitido → Mostrar acceso denegado
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('denied-screen').style.display = 'flex';
+      document.getElementById('denied-email').textContent = userEmail || 'desconocido';
+      return;
+    }
+    
+    // Email SÍ está permitido → Continuar normalmente
     accessToken = await getAccessToken();
     fileId = await findFileId();
     
@@ -444,9 +472,9 @@ async function loginSuccess() {
     renderCat();
 
     document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('denied-screen').style.display = 'none';
     document.getElementById('app-shell').style.display = 'block';
     
-    const account = pca.getActiveAccount();
     document.getElementById('user-info').textContent = account?.name || 'Usuario';
     
     setDefaultDate();
@@ -498,16 +526,30 @@ async function ensureToken() {
 // ════════════════════════════════════════
 async function findFileId() {
   const token = await ensureToken();
-  const url = 'https://graph.microsoft.com/v1.0/me/drive/root/children?$filter=name eq \'Control_de_Gastos_2026.xlsx\'';
   
-  const response = await fetch(url, {
+  // Primero: Encontrar la carpeta "Gestion Financiera"
+  let folderUrl = 'https://graph.microsoft.com/v1.0/me/drive/root/children?$filter=name eq \'Gestion Financiera\'';
+  let response = await fetch(folderUrl, {
     headers: { 'Authorization': `Bearer ${token}` }
   });
   
-  if (!response.ok) throw new Error(`Graph error: ${response.status}`);
-  const data = await response.json();
+  if (!response.ok) throw new Error(`Error al buscar carpeta: ${response.status}`);
+  let data = await response.json();
   
-  if (data.value.length === 0) throw new Error('Archivo no encontrado en OneDrive');
+  if (data.value.length === 0) throw new Error('Carpeta "Gestion Financiera" no encontrada en OneDrive');
+  
+  const folderId = data.value[0].id;
+  
+  // Segundo: Buscar el archivo dentro de esa carpeta
+  const fileUrl = `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children?$filter=name eq 'Control_de_Gastos_2026.xlsx'`;
+  response = await fetch(fileUrl, {
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+  
+  if (!response.ok) throw new Error(`Error al buscar archivo: ${response.status}`);
+  data = await response.json();
+  
+  if (data.value.length === 0) throw new Error('Archivo "Control_de_Gastos_2026.xlsx" no encontrado en la carpeta "Gestion Financiera"');
   return data.value[0].id;
 }
 
@@ -598,17 +640,37 @@ async function loadListas() {
         gastosMap[key] = val;
       }
     }
+
+    // Cargar también las cuentas desde columna C
+    const cuentasData = await xlRead(SHEET_LISTAS, 'C1:C162');
+    cuentasList = [];
+    
+    for (let i = 1; i < cuentasData.length; i++) {
+      const [cuenta] = cuentasData[i];
+      if (cuenta && cuenta.toString().trim()) {
+        cuentasList.push(cuenta.toString().trim());
+      }
+    }
   } catch (e) {
     console.error('Error al cargar listas:', e);
     toast('⚠️ Error al cargar categorías', 'er');
   }
 }
 
+// Variable global para cuentas
+let cuentasList = [];
+
 function fillGastoSel() {
-  const sel = document.getElementById('gasto');
+  // Llenar Gasto
+  const selGasto = document.getElementById('gasto');
   const sorted = Object.keys(gastosMap).sort();
-  sel.innerHTML = '<option value="">-- Seleccionar --</option>' + 
+  selGasto.innerHTML = '<option value="">-- Seleccionar --</option>' + 
     sorted.map(g => `<option value="${x(g)}">${x(g)}</option>`).join('');
+
+  // Llenar Cuenta
+  const selCuenta = document.getElementById('cuenta');
+  selCuenta.innerHTML = '<option value="">-- Seleccionar --</option>' + 
+    cuentasList.map(c => `<option value="${x(c)}">${x(c)}</option>`).join('');
 }
 
 function setTipo(t, btn) {
@@ -649,11 +711,17 @@ function buildExcelRow(formData) {
   // Semana (ISO)
   const semana = getWk(fecha);
   
+  // Fecha formateada DD-MM-YYYY
+  const dd = String(fecha.getDate()).padStart(2, '0');
+  const mm = String(fecha.getMonth() + 1).padStart(2, '0');
+  const yyyy = fecha.getFullYear();
+  const fechaFormato = `${dd}-${mm}-${yyyy}`;
+  
   // Array con 14 elementos (A:N)
   return [
     mes,                        // A: Mes
     ano,                        // B: Año
-    fecha,                      // C: Fecha Pago (DateTime)
+    fechaFormato,               // C: Fecha Pago (DD-MM-YYYY)
     dia,                        // D: Día
     semana,                     // E: Semana
     formData.detalle,           // F: Detalle
@@ -664,7 +732,7 @@ function buildExcelRow(formData) {
     formData.valor,             // K: $ Valor
     formData.medioPago,         // L: Medio Pago
     formData.cuenta || '',      // M: Cuenta
-    formData.notas || ''        // N: Notas
+    formData.usuario            // N: Usuario (quién envió)
   ];
 }
 
@@ -679,15 +747,17 @@ async function savGasto() {
     // Validar
     const detalle = document.getElementById('detalle').value.trim();
     const gasto = document.getElementById('gasto').value;
-    const familia = document.getElementById('familia').value;
     const valor = parseFloat(document.getElementById('amt').value);
     const fecha = document.getElementById('fecha').value;
     
     if (!detalle) { toast('⚠️ Ingresa una descripción', 'er'); return; }
     if (!gasto) { toast('⚠️ Selecciona una categoría', 'er'); return; }
-    if (!familia) { toast('⚠️ Selecciona una familia', 'er'); return; }
     if (!valor || valor <= 0) { toast('⚠️ Ingresa un monto válido', 'er'); return; }
     if (!fecha) { toast('⚠️ Selecciona una fecha', 'er'); return; }
+
+    // Obtener Familia automáticamente desde gastosMap
+    const familia = gastosMap[gasto] || '';
+    if (!familia) { toast('⚠️ La categoría no tiene familia asignada', 'er'); return; }
 
     btn.disabled = true;
     btn.textContent = '⏳ Sincronizando...';
@@ -734,10 +804,8 @@ async function savGasto() {
     // Limpiar formulario
     document.getElementById('detalle').value = '';
     document.getElementById('gasto').value = '';
-    document.getElementById('familia').value = '';
     document.getElementById('amt').value = '';
     document.getElementById('cuenta').value = '';
-    document.getElementById('notas').value = '';
     setDefaultDate();
 
     renderHist();
@@ -919,7 +987,7 @@ function showView(v, btn) {
   if (v === 'maint') renderCat();
 }
 
-// Iniciar
+// Inicializar la app
 init();
 </script>
 </body>
